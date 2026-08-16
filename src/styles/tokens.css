@@ -1,0 +1,90 @@
+:root {
+  /* Color palette (Skinelle-inspired design tokens) */
+  --color-white: #ffffff;
+  --color-pink-50: #fdf2f8;
+  --color-pink-60: #fae9ea;
+  --color-pink-100: #fce7f3;
+  --color-stone-50: #fafaf9;
+  --color-stone-100: #f5f5f4;
+  --color-stone-200: #e7e5e4;
+  --color-stone-300: #d6d3d1;
+  --color-stone-600: #57534e;
+  --color-stone-700: #44403c;
+  --color-stone-800: #292524;
+  --color-stone-950: #0c0a09;
+  --color-orange-50: #fff7ed;
+  --color-orange-100: #ffedd5;
+  --color-red-600: #dc2626;
+  --color-violet-50: #f5f3ff;
+  --color-violet-100: #ede9fe;
+  --color-violet-400: #a78bfa;
+  --color-indigo-50: #eef2ff;
+  --color-zinc-800: #27272a;
+
+  /* Semantic */
+  --color-bg: var(--color-white);
+  --color-text: var(--color-stone-800);
+  --color-heading: var(--color-stone-950);
+  --color-muted: var(--color-stone-600);
+  --color-border: var(--color-stone-200);
+  --color-product-bg: #f0ebe6;
+
+  /* Typography */
+  --font-sans: 'Figtree', system-ui, sans-serif;
+  --font-serif: 'EB Garamond', Georgia, serif;
+
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.25rem;
+  --fs-2xl: 1.5rem;
+  --fs-3xl: 1.875rem;
+  --fs-4xl: 2.25rem;
+  --fs-5xl: 3rem;
+  --fs-6xl: 4rem;
+
+  --lh-100: 1;
+  --lh-113: 1.13;
+  --lh-120: 1.2;
+  --lh-140: 1.4;
+  --lh-156: 1.56;
+  --lh-163: 1.63;
+  --lh-171: 1.71;
+
+  --ls-none: 0px;
+  --ls-14: 0.14px;
+  --ls-16: 0.16px;
+  --ls-18: 0.18px;
+  --ls-20: 0.2px;
+  --ls-24: 0.24px;
+
+  /* Spacing scale */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.25rem;
+  --sp-6: 1.5rem;
+  --sp-7: 1.75rem;
+  --sp-8: 2rem;
+  --sp-10: 2.5rem;
+  --sp-12: 3rem;
+  --sp-14: clamp(1.5rem, 1.1296rem + 1.9753vw, 3.5rem);
+  --sp-16: 4rem;
+  --sp-20: 5rem;
+  --sp-24: 6rem;
+  --sp-28: clamp(4rem, 3.4444rem + 2.963vw, 7rem);
+  --sp-32: clamp(4rem, 3.2593rem + 3.9506vw, 8rem);
+
+  /* Layout */
+  --content-width: 1296px;
+  --content-padding: clamp(1.5rem, 2vw, 2rem);
+  --radius-2xl: 1rem;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px rgba(12, 10, 9, 0.06);
+  --shadow-md: 0 8px 24px rgba(12, 10, 9, 0.08);
+  --shadow-lg: 0 16px 48px rgba(12, 10, 9, 0.12);
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
