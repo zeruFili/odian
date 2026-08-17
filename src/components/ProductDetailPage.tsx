@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { products, type Product } from '../data/products'
+import { formatPrice, products, type Product } from '../data/products'
 import { useCart } from '../store/cart'
 import ProductImage from './ProductImage'
 import ProductCard from './ProductCard'
@@ -98,14 +98,14 @@ export default function ProductDetailPage() {
 
             <div className="pd__price">
               {isVariable || isGrouped ? (
-                <span className="price">${product.price.toFixed(2)} – ${(product.priceMax ?? product.price).toFixed(2)}</span>
+                <span className="price">{formatPrice(product, product.price)} – {formatPrice(product, product.priceMax ?? product.price)}</span>
               ) : product.compareAtPrice ? (
                 <>
-                  <span className="price">${product.price.toFixed(2)}</span>
-                  <del className="price price--old">${product.compareAtPrice.toFixed(2)}</del>
+                  <span className="price">{formatPrice(product, product.price)}</span>
+                  <del className="price price--old">{formatPrice(product, product.compareAtPrice)}</del>
                 </>
               ) : (
-                <span className="price">${product.price.toFixed(2)}</span>
+                <span className="price">{formatPrice(product, product.price)}</span>
               )}
             </div>
 
@@ -137,6 +137,14 @@ export default function ProductDetailPage() {
             </div>
 
             <div className="pd__meta">
+              {(product.brand || product.location) && (
+                <div className="pd__tags">
+                  {product.brand && <span className="pd__meta-label">Brand:</span>}
+                  {product.brand && <span>{product.brand}</span>}
+                  {product.location && <span className="pd__meta-sep">·</span>}
+                  {product.location && <span>{product.location}</span>}
+                </div>
+              )}
               <div className="pd__tags">
                 <span className="pd__meta-label">Tags:</span>
                 <a href="#">Beauty</a>

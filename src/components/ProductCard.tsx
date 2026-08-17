@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import type { Product } from '../data/products'
+import { formatPrice, type Product } from '../data/products'
 import ProductImage from './ProductImage'
 import { StarIcon } from './Icons'
 
@@ -47,14 +47,14 @@ export default function ProductCard({ product, onAdd }: Props) {
 
         <div className="card__price">
           {product.type === 'variable' || product.type === 'grouped' ? (
-            <span className="price">${product.price.toFixed(2)} – ${(product.priceMax ?? product.price).toFixed(2)}</span>
+            <span className="price">{formatPrice(product, product.price)} – {formatPrice(product, product.priceMax ?? product.price)}</span>
           ) : product.compareAtPrice ? (
             <>
-              <span className="price price--current">${product.price.toFixed(2)}</span>
-              <del className="price price--old">${product.compareAtPrice.toFixed(2)}</del>
+              <span className="price price--current">{formatPrice(product, product.price)}</span>
+              <del className="price price--old">{formatPrice(product, product.compareAtPrice)}</del>
             </>
           ) : (
-            <span className="price">${product.price.toFixed(2)}</span>
+            <span className="price">{formatPrice(product, product.price)}</span>
           )}
         </div>
 

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useCart } from '../store/cart'
+import { formatPrice, priceInUsd } from '../data/products'
 import ProductImage from './ProductImage'
 import { CloseIcon } from './Icons'
 
@@ -53,7 +54,7 @@ export default function CartDrawer() {
                     </div>
                     <div className="drawer-line__info">
                       <span className="drawer-line__name">{line.product.name}</span>
-                      <span className="drawer-line__price">${line.product.price.toFixed(2)}</span>
+                      <span className="drawer-line__price">{formatPrice(line.product, line.product.price)}</span>
                       <div className="drawer-line__qty">
                         <button onClick={() => setQuantity(line.product.id, line.quantity - 1)} aria-label="Decrease quantity">−</button>
                         <span>{line.quantity}</span>
@@ -61,7 +62,7 @@ export default function CartDrawer() {
                       </div>
                     </div>
                     <div className="drawer-line__total">
-                      <span>${(line.product.price * line.quantity).toFixed(2)}</span>
+                      <span>${(priceInUsd(line.product) * line.quantity).toFixed(2)}</span>
                       <button className="drawer-line__remove" onClick={() => removeFromCart(line.product.id)} aria-label="Remove item">
                         <CloseIcon size={14} />
                       </button>

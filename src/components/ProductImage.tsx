@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Product } from '../data/products'
 
 interface Props {
@@ -27,12 +28,25 @@ function pickVariant(product: Product): 'bottle' | 'jar' | 'tube' {
 }
 
 export default function ProductImage({ product }: Props) {
+  const [failed, setFailed] = useState(false)
   const variant = pickVariant(product)
   const c1 = product.swatch
   const c2 = product.swatch2 ?? shade(product.swatch, 18)
   const accent = product.accents[0]
   const label = product.accents[1] ?? '#ffffff'
   const cap = product.accents[2] ?? shade(product.swatch, -30)
+
+  if (product.image && !failed) {
+    return (
+      <img
+        src={product.image}
+        alt={product.name}
+        loading="lazy"
+        onError={() => setFailed(true)}
+        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+      />
+    )
+  }
 
   return (
     <svg

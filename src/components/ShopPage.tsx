@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../store/cart'
-import { CATEGORY_TICKER, CATEGORIES, SKIN_TYPES, products } from '../data/products'
+import { CATEGORY_TICKER, CATEGORIES, SKIN_TYPES, products, priceInUsd } from '../data/products'
 import ProductCard from './ProductCard'
 import Footer from './Footer'
 import { CloseIcon, SparkleIcon } from './Icons'
@@ -44,7 +44,7 @@ export default function ShopPage() {
   const visible = products.filter((p) => {
     if (filters.categories.length && !p.categories.some((c) => filters.categories.includes(c))) return false
     if (filters.skinTypes.length && !p.skinTypes.some((s) => filters.skinTypes.includes(s))) return false
-    if (p.price > filters.maxPrice) return false
+    if (priceInUsd(p) > filters.maxPrice) return false
     if (filters.inStockOnly && p.type === 'outofstock') return false
     return true
   })
@@ -58,9 +58,9 @@ export default function ShopPage() {
       case 'latest':
         return b.id.localeCompare(a.id)
       case 'price-asc':
-        return a.price - b.price
+        return priceInUsd(a) - priceInUsd(b)
       case 'price-desc':
-        return b.price - a.price
+        return priceInUsd(b) - priceInUsd(a)
       default:
         return 0
     }

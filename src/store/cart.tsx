@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, useReducer, type ReactNode } from 'react'
-import { products, type Product } from '../data/products'
+import { priceInUsd, products, type Product } from '../data/products'
 
 export interface CartLine {
   product: Product
@@ -89,7 +89,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<CartContextValue>(() => {
     const count = state.lines.reduce((sum, l) => sum + l.quantity, 0)
-    const subtotal = state.lines.reduce((sum, l) => sum + l.product.price * l.quantity, 0)
+    const subtotal = state.lines.reduce((sum, l) => sum + priceInUsd(l.product) * l.quantity, 0)
     return {
       lines: state.lines,
       isOpen: state.isOpen,
