@@ -1,9 +1,10 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useCart } from '../store/cart'
 import { CATEGORY_TICKER, CATEGORIES, SKIN_TYPES, products } from '../data/products'
 import ProductCard from './ProductCard'
-import { ApplePayIcon, CloseIcon, FacebookIcon, GooglePayIcon, InstagramIcon, MastercardIcon, SparkleIcon, VisaIcon, YoutubeIcon } from './Icons'
-import { Logo } from './Header'
+import Footer from './Footer'
+import { CloseIcon, SparkleIcon } from './Icons'
 
 interface ShopFilters {
   categories: string[]
@@ -93,7 +94,7 @@ export default function ShopPage() {
       <section className="shop-hero">
         <div className="container shop-hero__inner">
           <nav className="breadcrumb" aria-label="Breadcrumb">
-            <a href="#">Home</a>
+            <Link to="/">Home</Link>
             <span className="breadcrumb__sep">/</span>
             <span aria-current="page">Shop</span>
           </nav>
@@ -270,7 +271,7 @@ export default function ShopPage() {
           <div className="promo__content">
             <span className="promo__eyebrow">Discounts</span>
             <h2 className="promo__title">30% discount on anti-aging care until the end of the month</h2>
-            <a href="#" className="btn">All products</a>
+            <Link to="/" className="btn">All products</Link>
           </div>
           <div className="promo__art" aria-hidden="true">
             <PromoIllustration />
@@ -301,63 +302,6 @@ function FilterGroup({ title, children }: { title: string; children: React.React
       <h3 className="filter-group__title">{title}</h3>
       <div className="filter-group__body">{children}</div>
     </div>
-  )
-}
-
-function Footer() {
-  return (
-    <footer className="footer">
-      <div className="container">
-        <div className="footer__top">
-          <div className="footer__brand">
-            <Logo />
-            <p className="footer__tagline">
-              We strive to help every woman reveal her skin's natural radiance by selecting only the best from around the world.
-            </p>
-            <div className="footer__social">
-              <a href="#" aria-label="Instagram"><InstagramIcon /></a>
-              <a href="#" aria-label="Facebook"><FacebookIcon /></a>
-              <a href="#" aria-label="YouTube"><YoutubeIcon /></a>
-            </div>
-          </div>
-          <div className="footer__col">
-            <h4>Products</h4>
-            <ul>
-              <li><a href="#">Shop all</a></li>
-              <li><a href="#">Skin care</a></li>
-              <li><a href="#">Body products</a></li>
-              <li><a href="#">Anti-aging care</a></li>
-              <li><a href="#">Organic products</a></li>
-            </ul>
-          </div>
-          <div className="footer__col">
-            <h4>Information</h4>
-            <ul>
-              <li><a href="#">About us</a></li>
-              <li><a href="#">Blog</a></li>
-              <li><a href="#">Contact</a></li>
-            </ul>
-          </div>
-          <div className="footer__col">
-            <h4>More</h4>
-            <ul>
-              <li><a href="#">Privacy policy</a></li>
-              <li><a href="#">Terms of service</a></li>
-              <li><a href="#">Shipping & returns</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="footer__bottom">
-          <p className="footer__copy">© All rights reserved. Made with care for radiant skin.</p>
-          <div className="footer__payments">
-            <VisaIcon />
-            <MastercardIcon />
-            <GooglePayIcon />
-            <ApplePayIcon />
-          </div>
-        </div>
-      </div>
-    </footer>
   )
 }
 

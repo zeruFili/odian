@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { Product } from '../data/products'
 import ProductImage from './ProductImage'
 import { StarIcon } from './Icons'
@@ -28,9 +29,9 @@ export default function ProductCard({ product, onAdd }: Props) {
   return (
     <li className={`card card--${product.type}`}>
       <div className="card__media">
-        <a href="#" className="card__img-link" aria-label={product.name}>
+        <Link to={`/product/${product.id}`} className="card__img-link" aria-label={product.name}>
           <ProductImage product={product} />
-        </a>
+        </Link>
         {product.badge === 'sale' && product.compareAtPrice && (
           <span className="card__badge card__badge--sale">Sale</span>
         )}
@@ -41,7 +42,7 @@ export default function ProductCard({ product, onAdd }: Props) {
 
       <div className="card__body">
         <h2 className="card__title">
-          <a href="#">{product.name}</a>
+          <Link to={`/product/${product.id}`}>{product.name}</Link>
         </h2>
 
         <div className="card__price">

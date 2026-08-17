@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useCart } from '../store/cart'
 import {
   BagIcon,
@@ -11,35 +12,35 @@ import {
 const NAV = [
   {
     label: 'Home',
-    href: '#',
+    href: '/',
   },
   {
     label: 'Shop',
-    href: '#',
+    href: '/',
     children: [
-      { label: 'Shop', href: '#' },
-      { label: 'Simple Product', href: '#' },
-      { label: 'Variable Product', href: '#' },
-      { label: 'Grouped Product', href: '#' },
-      { label: 'External Product', href: '#' },
-      { label: 'Out of stock Product', href: '#' },
+      { label: 'Shop', href: '/' },
+      { label: 'Simple Product', href: '/product/anti-pigmentation-serum' },
+      { label: 'Variable Product', href: '/product/cosmetic-firming-serum' },
+      { label: 'Grouped Product', href: '/product/hydrating-sheet-set' },
+      { label: 'External Product', href: '/product/exfoliating-body-scrub' },
+      { label: 'Out of stock Product', href: '/product/coconut-oil-lotion' },
     ],
   },
   {
     label: 'Category',
-    href: '#',
+    href: '/',
     mega: true,
   },
   {
     label: 'Offer',
-    href: '#',
+    href: '/',
     mega: true,
   },
   {
     label: 'Pages',
-    href: '#',
+    href: '/',
     children: [
-      { label: 'Shop', href: '#' },
+      { label: 'Shop', href: '/' },
       { label: 'About us', href: '#' },
       { label: 'Contact us', href: '#' },
       { label: 'Blog', href: '#' },
@@ -80,14 +81,14 @@ const MEGA_CATEGORIES = [
 
 export function Logo({ light = false }: { light?: boolean }) {
   return (
-    <a href="#" className="logo" aria-label="Lumière home">
+    <Link to="/" className="logo" aria-label="Lumière home">
       <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
         <circle cx="16" cy="16" r="15" fill="currentColor" />
         <circle cx="16" cy="16" r="9" fill="none" stroke={light ? '#fdf2f8' : '#fae9ea'} strokeWidth="2.4" />
         <circle cx="16" cy="16" r="3.2" fill={light ? '#fff' : '#fae9ea'} />
       </svg>
       <span className="logo__word">Lumière</span>
-    </a>
+    </Link>
   )
 }
 
@@ -141,11 +142,10 @@ export default function Header() {
                   setDropdown(null)
                 }}
               >
-                <button className="nav-link" type="button">
+                <Link className="nav-link" to={item.href}>
                   {item.label}
                   {(item.children || item.mega) && <ChevronDownIcon size={16} />}
-                </button>
-
+                </Link>
                 {item.mega && megaOpen === item.label && (
                   <div className="mega">
                     <div className="mega__grid">
@@ -179,7 +179,7 @@ export default function Header() {
                   <ul className="dropdown">
                     {item.children.map((child) => (
                       <li key={child.label}>
-                        <a href={child.href} className="dropdown__link">{child.label}</a>
+                        <Link to={child.href} className="dropdown__link">{child.label}</Link>
                       </li>
                     ))}
                   </ul>
