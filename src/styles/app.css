@@ -1099,7 +1099,24 @@
     grid-template-columns: auto 1fr auto;
   }
   .header__nav {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .header__nav::-webkit-scrollbar {
     display: none;
+  }
+  .header__nav-inner {
+    justify-content: flex-start;
+    width: max-content;
+    min-width: 100%;
+  }
+  .nav-list {
+    padding: var(--sp-2) var(--content-padding);
+  }
+  .nav-item {
+    flex-shrink: 0;
   }
   .header__burger {
     display: inline-flex;
