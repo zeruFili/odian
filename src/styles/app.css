@@ -1243,10 +1243,17 @@
   background: var(--color-product-bg);
   aspect-ratio: 1;
   cursor: pointer;
+  border: none;
+  padding: 0;
+  display: block;
   transition: box-shadow 0.2s var(--ease);
 }
 
 .pd__thumb:hover {
+  box-shadow: 0 0 0 2px var(--color-stone-950);
+}
+
+.pd__thumb.is-active {
   box-shadow: 0 0 0 2px var(--color-stone-950);
 }
 

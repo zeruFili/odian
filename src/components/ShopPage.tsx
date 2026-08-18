@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../store/cart'
+import { useMobileFilters } from '../store/filters'
 import { CATEGORY_TICKER, CATEGORIES, SKIN_TYPES, products, priceInUsd } from '../data/products'
 import ProductCard from './ProductCard'
 import Footer from './Footer'
@@ -38,7 +39,7 @@ export default function ShopPage() {
   const [filters, setFilters] = useState<ShopFilters>(DEFAULT_FILTERS)
   const [sort, setSort] = useState<SortKey>('default')
   const [page, setPage] = useState(1)
-  const [mobileFilters, setMobileFilters] = useState(false)
+  const { isOpen: mobileFilters, open: openMobileFilters, close: closeMobileFilters } = useMobileFilters()
   const { addToCart } = useCart()
 
   const visible = products.filter((p) => {
@@ -125,7 +126,7 @@ export default function ShopPage() {
         <aside className={`filters ${mobileFilters ? 'is-open' : ''}`} aria-label="Filters">
           <div className="filters__header">
             <h2 className="filters__title">Filters</h2>
-            <button className="icon-btn filters__close" onClick={() => setMobileFilters(false)} aria-label="Close filters">
+            <button className="icon-btn filters__close" onClick={closeMobileFilters} aria-label="Close filters">
               <CloseIcon />
             </button>
           </div>
@@ -191,7 +192,7 @@ export default function ShopPage() {
             />
           </FilterGroup>
 
-          <button className="btn btn--block filters__apply" onClick={() => setMobileFilters(false)}>
+          <button className="btn btn--block filters__apply" onClick={closeMobileFilters}>
             Apply
           </button>
           {activeCount > 0 && (
@@ -201,11 +202,11 @@ export default function ShopPage() {
           )}
         </aside>
 
-        {mobileFilters && <div className="filters__overlay" onClick={() => setMobileFilters(false)} />}
+        {mobileFilters && <div className="filters__overlay" onClick={closeMobileFilters} />}
 
         <div className="catalog__main">
           <div className="catalog__toolbar">
-            <button className="filter-toggle" onClick={() => setMobileFilters(true)} type="button">
+            <button className="filter-toggle" onClick={openMobileFilters} type="button">
               Filter products
             </button>
             <div className="catalog__results">Showing {paged.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, sorted.length)} of {sorted.length} results</div>

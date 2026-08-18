@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Product } from '../data/products'
 
 interface Props {
   product: Product
+  /** Optional image override (e.g. a specific gallery image). */
+  src?: string
   variant?: 'bottle' | 'jar' | 'tube'
 }
 
@@ -27,8 +29,13 @@ function pickVariant(product: Product): 'bottle' | 'jar' | 'tube' {
   return 'tube'
 }
 
-export default function ProductImage({ product }: Props) {
+export default function ProductImage({ product, src }: Props) {
   const [failed, setFailed] = useState(false)
+
+  useEffect(() => {
+    setFailed(false)
+  }, [src])
+
   const variant = pickVariant(product)
   const c1 = product.swatch
   const c2 = product.swatch2 ?? shade(product.swatch, 18)
@@ -36,10 +43,11 @@ export default function ProductImage({ product }: Props) {
   const label = product.accents[1] ?? '#ffffff'
   const cap = product.accents[2] ?? shade(product.swatch, -30)
 
-  if (product.image && !failed) {
+  const imageSrc = src ?? product.image
+  if (imageSrc && !failed) {
     return (
       <img
-        src={product.image}
+        src={imageSrc}
         alt={product.name}
         loading="lazy"
         onError={() => setFailed(true)}

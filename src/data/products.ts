@@ -20,6 +20,8 @@ export interface Product {
   description: string
   /** External product image (sourced from Jiji Ethiopia). Falls back to generated SVG when absent. */
   image?: string
+  /** Additional gallery images for the product detail page. */
+  images?: string[]
   /** Currency of the listed price. Defaults to USD. */
   currency?: Currency
   brand?: string
@@ -75,7 +77,7 @@ export const CATEGORY_TICKER = [
   'Hydrating serums',
 ]
 
-export const products: Product[] = [
+const rawProducts: Product[] = [
   {
     id: 'lumiere-radiance-serum',
     name: 'Radiance Renewal Serum',
@@ -579,8 +581,9 @@ export const products: Product[] = [
     swatch: '#e6f0ea',
     swatch2: '#c5dccb',
     accents: ['#1f7a4d', '#ffffff', '#165a39'],
-    description: 'Original CeraVe Hydrating Cleanser from the USA â€” gentle, non-foaming, fragrance-free.',
+    description: 'Original CeraVe Hydrating Cleanser from the USA — gentle, non-foaming, fragrance-free.',
     image: '/images/jiji/11153346_MzAwLTY2Ny00MjRlMDQxMmQxLTE.webp',
+    images: ["/images/jiji/10446348_MzAwLTMzMC1mMDhiMTE0ZDhk.webp","/images/jiji/5916860_MzAwLTU5My0yNWVmODdmYTIxLTE.webp"],
     currency: 'ETB',
     brand: 'CeraVe',
     location: 'Addis Ababa, Yeka',
@@ -600,6 +603,7 @@ export const products: Product[] = [
     accents: ['#0077b6', '#ffffff', '#005a8c'],
     description: '10% benzoyl peroxide acne wash treatment for breakouts and clogged pores.',
     image: '/images/jiji/11607007_MzAwLTQwOC1kNzE2Mzk1MmY3LTE.webp',
+    images: ["/images/jiji/7380657_MzAwLTQwMC1lMGJiOTQzNjkzLTE.webp"],
     currency: 'ETB',
     brand: 'PanOxyl',
     location: 'Addis Ababa, Bole',
@@ -619,8 +623,9 @@ export const products: Product[] = [
     swatch: '#f6efe4',
     swatch2: '#e6d6bc',
     accents: ['#c89f5e', '#ffffff', '#a67f3f'],
-    description: 'COSRX Niacinamide 15% Face Serum â€” a powerful solution to tighten pores and control oil.',
+    description: 'COSRX Niacinamide 15% Face Serum — a powerful solution to tighten pores and control oil.',
     image: '/images/jiji/5832086_MzAwLTM2MC02ZjUxYjA0MzNmLTE.webp',
+    images: ["/images/jiji/12000110_MzAwLTMwMC1jNWNkYTdjODZk.webp","/images/jiji/11999930_MzAwLTMwMC0wOTAzYzVjMDAw.webp"],
     currency: 'ETB',
     brand: 'COSRX',
     location: 'Addis Ababa, Bole',
@@ -638,8 +643,9 @@ export const products: Product[] = [
     swatch: '#f4efe9',
     swatch2: '#e0d6c9',
     accents: ['#8a6f52', '#ffffff', '#6b5340'],
-    description: 'Naturium Niacinamide 12% + Zinc 2% â€” reduces dark spots, pores, and excess oil.',
+    description: 'Naturium Niacinamide 12% + Zinc 2% — reduces dark spots, pores, and excess oil.',
     image: '/images/jiji/10439965_MzAwLTQwMC01ZjUyZjg3MWE3.webp',
+    images: ["/images/jiji/11341003_MzAwLTM3NS0xYWI5NjdkOTNk.webp"],
     currency: 'ETB',
     brand: 'Naturium',
     location: 'Addis Ababa, Bole',
@@ -657,8 +663,9 @@ export const products: Product[] = [
     swatch: '#f6e9dc',
     swatch2: '#ecd2b4',
     accents: ['#d98e3f', '#ffffff', '#b56f28'],
-    description: 'La Roche-Posay Vitamin C face and neck serum â€” anti-aging, brightening, and smoothing.',
+    description: 'La Roche-Posay Vitamin C face and neck serum — anti-aging, brightening, and smoothing.',
     image: '/images/jiji/5916688_MzAwLTUzNS02ZDdmOTM5NTQ2LTE.webp',
+    images: ["/images/jiji/8599059_MzAwLTY2Ny1mNDI2NTAxNzMx.webp","/images/jiji/10455275_MzAwLTQwMi1jZDI5ODM5ZTNjLTE.webp"],
     currency: 'ETB',
     brand: 'La Roche-Posay',
     location: 'Addis Ababa, Bole',
@@ -676,8 +683,9 @@ export const products: Product[] = [
     swatch: '#f5efe7',
     swatch2: '#e4d9c9',
     accents: ['#b04a5a', '#ffffff', '#8a3745'],
-    description: 'Eucerin Anti-Pigment Dual Serum with patented Thiamidol â€” fades dark spots and hyperpigmentation.',
+    description: 'Eucerin Anti-Pigment Dual Serum with patented Thiamidol — fades dark spots and hyperpigmentation.',
     image: '/images/jiji/11942961_MzAwLTM5Ni01NTBiMjZkOWJh.webp',
+    images: ["/images/jiji/11942715_MzAwLTM5Ni0zZDI2ZjhjM2Ey.webp"],
     currency: 'ETB',
     brand: 'Eucerin',
     location: 'Addis Ababa, Nifas Silk-Lafto',
@@ -697,7 +705,7 @@ export const products: Product[] = [
     swatch: '#3a3a3a',
     swatch2: '#222222',
     accents: ['#000000', '#ffffff', '#0a0a0a'],
-    description: 'Black charcoal peel-off face mask â€” whitening and anti-wrinkle, 300 g.',
+    description: 'Black charcoal peel-off face mask — whitening and anti-wrinkle, 300 g.',
     image: '/images/jiji/5445831_MzAwLTI3NC1iZDIwYmM0OTZlLTE.webp',
     currency: 'ETB',
     brand: 'Unbranded',
@@ -716,7 +724,7 @@ export const products: Product[] = [
     swatch: '#2f2f2f',
     swatch2: '#1b1b1b',
     accents: ['#0c0c0c', '#ffffff', '#000000'],
-    description: 'YC Black Mask with bamboo charcoal â€” a powerful deep-cleansing treatment for a clearer, more radiant complexion.',
+    description: 'YC Black Mask with bamboo charcoal — a powerful deep-cleansing treatment for a clearer, more radiant complexion.',
     image: '/images/jiji/11985224_MzAwLTMwMC00OWI3MDcxNmZl.webp',
     currency: 'ETB',
     brand: 'YC',
@@ -756,8 +764,9 @@ export const products: Product[] = [
     swatch: '#f4ede2',
     swatch2: '#e2d3bd',
     accents: ['#a9814f', '#ffffff', '#8a653a'],
-    description: 'Beauty of Joseon eye cream â€” deeply hydrates while reducing fine lines and dark circles.',
+    description: 'Beauty of Joseon eye cream — deeply hydrates while reducing fine lines and dark circles.',
     image: '/images/jiji/10476161_MzAwLTQ5MC00YmY1YTAyMTQ5LTE.webp',
+    images: ["/images/jiji/8806039_MzAwLTQ2OC1iYjA3MzU4NmIy.webp","/images/jiji/12288628_MzAwLTMwMC1hMmYyMzhiNWFm.webp"],
     currency: 'ETB',
     brand: 'Beauty of Joseon',
     location: 'Addis Ababa, Addis Ketema',
@@ -775,8 +784,9 @@ export const products: Product[] = [
     swatch: '#eef2f0',
     swatch2: '#d2ddd9',
     accents: ['#1f6b52', '#ffffff', '#174f3d'],
-    description: 'Original CeraVe Eye Repair Cream â€” helps reduce dark circles under eyes.',
+    description: 'Original CeraVe Eye Repair Cream — helps reduce dark circles under eyes.',
     image: '/images/jiji/11269259_MzAwLTQwMC1iYzQ4OWQ5Y2Rj.webp',
+    images: ["/images/jiji/10436424_MzAwLTM0OS0xMTA2YTc1MzM1LTE.webp","/images/jiji/9802629_MzAwLTI4MC03ZWM0ZTFiYjIxLTE.webp"],
     currency: 'ETB',
     brand: 'CeraVe',
     location: 'Addis Ababa, Bole',
@@ -794,7 +804,7 @@ export const products: Product[] = [
     swatch: '#f2ede4',
     swatch2: '#e0d4c0',
     accents: ['#9c8a5e', '#ffffff', '#7a6a45'],
-    description: 'The Inkey List Retinol Eye Cream â€” overnight, slow-release 3% retinol compound for the eye area.',
+    description: 'The Inkey List Retinol Eye Cream — overnight, slow-release 3% retinol compound for the eye area.',
     image: '/images/jiji/10087814_MzAwLTMwMC1kZDk5NjAwMGFl.webp',
     currency: 'ETB',
     brand: 'The Inkey List',
@@ -815,8 +825,9 @@ export const products: Product[] = [
     swatch: '#f3ede2',
     swatch2: '#e0d3bc',
     accents: ['#b08a55', '#ffffff', '#8f6d3f'],
-    description: 'The Ordinary Glycolic Acid 7% Exfoliating Toner â€” renews skin and removes dead cells.',
+    description: 'The Ordinary Glycolic Acid 7% Exfoliating Toner — renews skin and removes dead cells.',
     image: '/images/jiji/12308879_MzAwLTc2My0xNTlhYzY2NGVk.webp',
+    images: ["/images/jiji/11744922_MzAwLTQwMC02MTQzODBmZTU4.webp","/images/jiji/5446515_MzAwLTI0MS1mN2YzNmY4ZGM3LTE.webp"],
     currency: 'ETB',
     brand: 'The Ordinary',
     location: 'Addis Ababa, Arada',
@@ -838,6 +849,7 @@ export const products: Product[] = [
     accents: ['#1f6f8a', '#ffffff', '#175468'],
     description: 'Dermatologist-recommended moisturizing lotion for dry, sensitive skin.',
     image: '/images/jiji/12173657_MzAwLTQwMC0zNjJkY2JiN2Yz.webp',
+    images: ["/images/jiji/12387773_MzAwLTMwMC1mYzY5OTk5Mjgx.webp","/images/jiji/10461887_MzAwLTQwMC0xYjgxMTA1NGEx.webp"],
     currency: 'ETB',
     brand: 'Cetaphil',
     location: 'Addis Ababa, Bole',
@@ -855,8 +867,9 @@ export const products: Product[] = [
     swatch: '#e8f0ea',
     swatch2: '#c9dcce',
     accents: ['#1f7a4d', '#ffffff', '#165a39'],
-    description: 'CeraVe Daily Moisturizing Lotion 591 ml â€” with hyaluronic acid and ceramides.',
+    description: 'CeraVe Daily Moisturizing Lotion 591 ml — with hyaluronic acid and ceramides.',
     image: '/images/jiji/11148014_MzAwLTI3NC1hMTE2MTQzYWUx.webp',
+    images: ["/images/jiji/12189279_MzAwLTQwMC00Y2E4MDUwOWVl.webp","/images/jiji/12316629_MzAwLTQwMC1jZTIyYTgxNDA3.webp"],
     currency: 'ETB',
     brand: 'CeraVe',
     location: 'Addis Ababa, Bole',
@@ -874,8 +887,9 @@ export const products: Product[] = [
     swatch: '#f7efe0',
     swatch2: '#ecdcc2',
     accents: ['#d6a96a', '#ffffff', '#b88a4a'],
-    description: 'Organic and original shea butter â€” softens and smooths dry skin.',
+    description: 'Organic and original shea butter — softens and smooths dry skin.',
     image: '/images/jiji/10508911_MzAwLTI3OC01OWI1YzU2OTlj.webp',
+    images: ["/images/jiji/10464386_MzAwLTQwMC04ZGVmMzk1MDQ2.webp"],
     currency: 'ETB',
     brand: 'Nuba',
     location: 'Addis Ababa, Bole',
@@ -895,7 +909,7 @@ export const products: Product[] = [
     swatch: '#f8ecda',
     swatch2: '#ecd2ab',
     accents: ['#e08a3a', '#ffffff', '#b86a28'],
-    description: 'Fruit of the Wokali Scrub â€” a natural sherbet scrub available in different flavors.',
+    description: 'Fruit of the Wokali Scrub — a natural sherbet scrub available in different flavors.',
     image: '/images/jiji/12179430_MzAwLTUzMy1lM2QzMDc3Y2Rm.webp',
     currency: 'ETB',
     brand: 'Fruit of the Wokali',
@@ -916,8 +930,9 @@ export const products: Product[] = [
     swatch: '#fdf9f1',
     swatch2: '#f0e6d3',
     accents: ['#d8b98a', '#ffffff', '#b8965f'],
-    description: 'Odourless coconut oil from South Africa â€” excellent for hair and skincare.',
+    description: 'Odourless coconut oil from South Africa — excellent for hair and skincare.',
     image: '/images/jiji/10297564_MzAwLTQzMi1jMGMyNDQ3M2Y2.webp',
+    images: ["/images/jiji/10363611_MzAwLTQwMC0wNmNiNDE4NTNjLTE.webp","/images/jiji/10852542_MzAwLTI4NC1jNWU0OTc1NGNj.webp"],
     currency: 'ETB',
     brand: 'Unbranded',
     location: 'Addis Ababa, Bole',
@@ -937,8 +952,9 @@ export const products: Product[] = [
     swatch: '#eef4ef',
     swatch2: '#d2e3d6',
     accents: ['#3f8f5f', '#ffffff', '#2f6f48'],
-    description: 'SKIN1004 Madagascar Centella Hyalu Cica Water-Fit Sun Serum â€” blocks harmful UV rays while hydrating.',
+    description: 'SKIN1004 Madagascar Centella Hyalu Cica Water-Fit Sun Serum — blocks harmful UV rays while hydrating.',
     image: '/images/jiji/11173482_MzAwLTY2Ny0xYmVjNzc1NDg5LTE.webp',
+    images: ["/images/jiji/11961918_MzAwLTMwMC05OTMzZGUzMTRm.webp","/images/jiji/9237851_MzAwLTQwMC0wZDRhMmE5NTZm.webp"],
     currency: 'ETB',
     brand: 'SKIN1004',
     location: 'Addis Ababa, Yeka',
@@ -956,8 +972,9 @@ export const products: Product[] = [
     swatch: '#f4efe8',
     swatch2: '#e3d9c9',
     accents: ['#c86a2a', '#ffffff', '#a5541f'],
-    description: 'La Roche-Posay Anthelios UVMune 400 Invisible Fluid SPF 50+ â€” ultra-high UVA/UVB protection.',
+    description: 'La Roche-Posay Anthelios UVMune 400 Invisible Fluid SPF 50+ — ultra-high UVA/UVB protection.',
     image: '/images/jiji/10340947_MzAwLTMwMS02MjkzMTg3NmZh.webp',
+    images: ["/images/jiji/11216718_MzAwLTY2Ny03MWJmZjU4MTkzLTE.webp","/images/jiji/11216689_MzAwLTY2Ny0wNTY2ZDM0MWZkLTE.webp"],
     currency: 'ETB',
     brand: 'La Roche-Posay',
     location: 'Addis Ababa, Bole',
@@ -977,8 +994,9 @@ export const products: Product[] = [
     swatch: '#eef2f4',
     swatch2: '#d0dbe0',
     accents: ['#1f6f8a', '#ffffff', '#175468'],
-    description: 'Kirkland Minoxidil 5% from the USA â€” clinically proven hair regrowth treatment.',
+    description: 'Kirkland Minoxidil 5% from the USA — clinically proven hair regrowth treatment.',
     image: '/images/jiji/10566597_MzAwLTI5Ny03NzNlYmUyODdmLTE.webp',
+    images: ["/images/jiji/11493852_MzAwLTM4MC05N2ExYWY4M2Zi.webp","/images/jiji/9248644_MzAwLTM4NC03ZDlkOGIxYjQ3LTE.webp"],
     currency: 'ETB',
     brand: 'Kirkland',
     location: 'Addis Ababa, Bole',
@@ -996,7 +1014,7 @@ export const products: Product[] = [
     swatch: '#f2eddf',
     swatch2: '#e0d5bb',
     accents: ['#8a9a4f', '#ffffff', '#6b7a3a'],
-    description: 'Alecrim (rosemary) hair oil â€” nourishes the scalp and supports healthy hair growth.',
+    description: 'Alecrim (rosemary) hair oil — nourishes the scalp and supports healthy hair growth.',
     image: '/images/jiji/8895687_MzAwLTQwMC05ODM5YzdjZmNmLTE.webp',
     currency: 'ETB',
     brand: 'Unbranded',
@@ -1017,10 +1035,29 @@ export const products: Product[] = [
     swatch: '#f6e9d0',
     swatch2: '#ecd2a0',
     accents: ['#e0a030', '#ffffff', '#b87e20'],
-    description: 'Turmeric and Kojic soap â€” brightens and evens skin tone, reduces dark spots and acne marks.',
+    description: 'Turmeric and Kojic soap — brightens and evens skin tone, reduces dark spots and acne marks.',
     image: '/images/jiji/11650369_MzAwLTQwMC1mYmZmMTQ2ZDYwLTE.webp',
     currency: 'ETB',
     brand: 'Unbranded',
     location: 'Addis Ababa, Bole',
   },
 ]
+
+/**
+ * Orders products so Jiji-sourced listings are interspersed with the original
+ * catalog, ensuring imported products are visible on the first page.
+ */
+export const products: Product[] = (() => {
+  const original = rawProducts.filter((p) => !p.id.startsWith('jiji-'))
+  const jiji = rawProducts.filter((p) => p.id.startsWith('jiji-'))
+  const result: Product[] = []
+  let oi = 0
+  let ji = 0
+  while (oi < original.length || ji < jiji.length) {
+    // Two originals, then one Jiji listing (repeating).
+    if (oi < original.length) result.push(original[oi++])
+    if (oi < original.length) result.push(original[oi++])
+    if (ji < jiji.length) result.push(jiji[ji++])
+  }
+  return result
+})()

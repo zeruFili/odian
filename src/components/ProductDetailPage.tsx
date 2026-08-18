@@ -22,12 +22,14 @@ export default function ProductDetailPage() {
   const { addToCart } = useCart()
   const [quantity, setQuantity] = useState(1)
   const [added, setAdded] = useState(false)
+  const [activeImage, setActiveImage] = useState(0)
 
   const product = useMemo(() => products.find((p) => p.id === id), [id])
 
   useEffect(() => {
     setQuantity(1)
     setAdded(false)
+    setActiveImage(0)
   }, [id])
 
   if (!product) {
@@ -42,6 +44,12 @@ export default function ProductDetailPage() {
       </>
     )
   }
+
+  const gallery = useMemo(() => {
+    const base = product.image ? [product.image] : []
+    const extra = product.images ?? []
+    return Array.from(new Set([...base, ...extra]))
+  }, [product])
 
   const related = getRelatedProducts(product)
 
@@ -81,15 +89,23 @@ export default function ProductDetailPage() {
           {/* Gallery */}
           <div className="pd__gallery">
             <div className="pd__main-image">
-              <ProductImage product={product} />
+              <ProductImage product={product} src={gallery[activeImage]} />
             </div>
-            <div className="pd__thumbs">
-              {[0, 1, 2].map((i) => (
-                <div className="pd__thumb" key={i}>
-                  <ProductImage product={product} />
-                </div>
-              ))}
-            </div>
+            {gallery.length > 1 && (
+              <div className="pd__thumbs">
+                {gallery.map((img, i) => (
+                  <button
+                    className={`pd__thumb ${i === activeImage ? 'is-active' : ''}`}
+                    key={i}
+                    onClick={() => setActiveImage(i)}
+                    aria-label={`View image ${i + 1}`}
+                    type="button"
+                  >
+                    <ProductImage product={product} src={img} />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Info */}

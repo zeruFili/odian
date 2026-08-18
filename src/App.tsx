@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { CartProvider } from './store/cart'
+import { MobileFiltersProvider } from './store/filters'
 import Header from './components/Header'
 import ShopPage from './components/ShopPage'
 import ProductDetailPage from './components/ProductDetailPage'
@@ -17,17 +18,19 @@ function ScrollToTop() {
 export default function App() {
   return (
     <CartProvider>
-      <BrowserRouter>
-        <ScrollToTop />
-        <Header />
-        <main>
-          <Routes>
-            <Route path="/" element={<ShopPage />} />
-            <Route path="/product/:id" element={<ProductDetailPage />} />
-          </Routes>
-        </main>
-        <CartDrawer />
-      </BrowserRouter>
+      <MobileFiltersProvider>
+        <BrowserRouter>
+          <ScrollToTop />
+          <Header />
+          <main>
+            <Routes>
+              <Route path="/" element={<ShopPage />} />
+              <Route path="/product/:id" element={<ProductDetailPage />} />
+            </Routes>
+          </main>
+          <CartDrawer />
+        </BrowserRouter>
+      </MobileFiltersProvider>
     </CartProvider>
   )
 }

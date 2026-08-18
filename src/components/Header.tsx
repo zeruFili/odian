@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useCart } from '../store/cart'
+import { useMobileFilters } from '../store/filters'
 import {
   BagIcon,
   ChevronDownIcon,
@@ -94,6 +95,9 @@ export function Logo({ light = false }: { light?: boolean }) {
 
 export default function Header() {
   const { count, openCart } = useCart()
+  const { isOpen: filtersOpen, open: openFilters, close: closeFilters } = useMobileFilters()
+  const { pathname } = useLocation()
+  const isShopPage = pathname === '/'
   const [searchOpen, setSearchOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [megaOpen, setMegaOpen] = useState<string | null>(null)
@@ -116,15 +120,28 @@ export default function Header() {
     if (searchOpen) searchRef.current?.focus()
   }, [searchOpen])
 
+  useEffect(() => {
+    if (!isShopPage && filtersOpen) closeFilters()
+    if (isShopPage) setMobileOpen(false)
+  }, [isShopPage, filtersOpen, closeFilters])
+
   return (
     <header className="header">
       <div className="header__inner container">
         <button
           className="header__burger"
-          aria-label="Open menu"
-          onClick={() => setMobileOpen((v) => !v)}
+          aria-label={isShopPage ? (filtersOpen ? 'Close filters' : 'Open filters') : 'Open menu'}
+          aria-expanded={isShopPage ? filtersOpen : mobileOpen}
+          onClick={() => {
+            if (isShopPage) {
+              filtersOpen ? closeFilters() : openFilters()
+              setMobileOpen(false)
+            } else {
+              setMobileOpen((v) => !v)
+            }
+          }}
         >
-          {mobileOpen ? <CloseIcon /> : <span className="burger-lines"><i /><i /><i /></span>}
+          {isShopPage ? (filtersOpen ? <CloseIcon /> : <span className="burger-lines"><i /><i /><i /></span>) : (mobileOpen ? <CloseIcon /> : <span className="burger-lines"><i /><i /><i /></span>)}
         </button>
 
         <nav className="header__nav" ref={navRef} aria-label="Primary">
