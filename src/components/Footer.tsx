@@ -21,8 +21,8 @@ export default function Footer() {
             <h4>Products</h4>
             <ul>
               <li><a href="/">Shop all</a></li>
-              <li><a href="/">Skin care</a></li>
-              <li><a href="/">Body products</a></li>
+              <li><a href="/discount">Discount</a></li>
+              <li><a href="/new-arrivals">New arrivals</a></li>
               <li><a href="/">Anti-aging care</a></li>
               <li><a href="/">Organic products</a></li>
             </ul>

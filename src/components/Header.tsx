@@ -12,20 +12,26 @@ import {
 
 const NAV = [
   {
-    label: 'Home',
-    href: '/',
-  },
-  {
     label: 'Shop',
     href: '/',
     children: [
       { label: 'Shop', href: '/' },
+      { label: 'New Arrivals', href: '/new-arrivals' },
+      { label: 'Discount', href: '/discount' },
       { label: 'Simple Product', href: '/product/anti-pigmentation-serum' },
       { label: 'Variable Product', href: '/product/cosmetic-firming-serum' },
       { label: 'Grouped Product', href: '/product/hydrating-sheet-set' },
       { label: 'External Product', href: '/product/exfoliating-body-scrub' },
       { label: 'Out of stock Product', href: '/product/coconut-oil-lotion' },
     ],
+  },
+  {
+    label: 'New Arrivals',
+    href: '/new-arrivals',
+  },
+  {
+    label: 'Discount',
+    href: '/discount',
   },
   {
     label: 'Category',
@@ -144,7 +150,38 @@ export default function Header() {
           {isShopPage ? (filtersOpen ? <CloseIcon /> : <span className="burger-lines"><i /><i /><i /></span>) : (mobileOpen ? <CloseIcon /> : <span className="burger-lines"><i /><i /><i /></span>)}
         </button>
 
-        <nav className="header__nav" ref={navRef} aria-label="Primary">
+        <div className="header__center">
+          <Logo />
+        </div>
+
+        <div className="header__actions">
+          <a href="#" className="header__contact">Contact</a>
+          <div className="header__search">
+            <button
+              className="icon-btn"
+              aria-label="Search"
+              onClick={() => setSearchOpen((v) => !v)}
+            >
+              {searchOpen ? <CloseIcon /> : <SearchIcon />}
+            </button>
+            {searchOpen && (
+              <div className="search-pop">
+                <input ref={searchRef} className="search-input" placeholder="Search products…" />
+              </div>
+            )}
+          </div>
+          <button className="icon-btn" aria-label="Account">
+            <UserIcon />
+          </button>
+          <button className="icon-btn cart-btn" aria-label="Open cart" onClick={openCart}>
+            <BagIcon />
+            <span className="cart-count">{count}</span>
+          </button>
+        </div>
+      </div>
+
+      <nav className="header__nav" ref={navRef} aria-label="Primary">
+        <div className="container header__nav-inner">
           <ul className="nav-list">
             {NAV.map((item) => (
               <li
@@ -204,46 +241,23 @@ export default function Header() {
               </li>
             ))}
           </ul>
-        </nav>
-
-        <div className="header__center">
-          <Logo />
         </div>
-
-        <div className="header__actions">
-          <a href="#" className="header__contact">Contact</a>
-          <div className="header__search">
-            <button
-              className="icon-btn"
-              aria-label="Search"
-              onClick={() => setSearchOpen((v) => !v)}
-            >
-              {searchOpen ? <CloseIcon /> : <SearchIcon />}
-            </button>
-            {searchOpen && (
-              <div className="search-pop">
-                <input ref={searchRef} className="search-input" placeholder="Search products…" />
-              </div>
-            )}
-          </div>
-          <button className="icon-btn" aria-label="Account">
-            <UserIcon />
-          </button>
-          <button className="icon-btn cart-btn" aria-label="Open cart" onClick={openCart}>
-            <BagIcon />
-            <span className="cart-count">{count}</span>
-          </button>
-        </div>
-      </div>
+      </nav>
 
       {mobileOpen && (
         <div className="mobile-menu">
           <ul>
             {NAV.map((item) => (
               <li key={item.label}>
-                <button className="mobile-link" type="button">
-                  {item.label} {(item.children || item.mega) && <ChevronDownIcon size={16} />}
-                </button>
+                {item.children || item.mega ? (
+                  <button className="mobile-link" type="button">
+                    {item.label} <ChevronDownIcon size={16} />
+                  </button>
+                ) : (
+                  <Link to={item.href} className="mobile-link" onClick={() => setMobileOpen(false)}>
+                    {item.label}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>

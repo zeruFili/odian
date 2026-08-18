@@ -272,7 +272,7 @@ export default function ShopPage() {
           <div className="promo__content">
             <span className="promo__eyebrow">Discounts</span>
             <h2 className="promo__title">30% discount on anti-aging care until the end of the month</h2>
-            <Link to="/" className="btn">All products</Link>
+            <Link to="/discount" className="btn">Shop discounts</Link>
           </div>
           <div className="promo__art" aria-hidden="true">
             <PromoIllustration />
