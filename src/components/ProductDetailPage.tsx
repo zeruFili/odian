@@ -63,7 +63,7 @@ export default function ProductDetailPage() {
     isOutOfStock ? 'Read more' :
     isVariable ? 'Select options' :
     isGrouped ? 'View products' :
-    isExternal ? 'Buy on Lumière Store' :
+    isExternal ? 'Buy on ODILIA Store' :
     'Add to cart'
 
   const handleAdd = () => {

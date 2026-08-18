@@ -93,6 +93,7 @@ const rawProducts: Product[] = [
     accents: ['#c98a5f', '#f6ede4', '#b3a596'],
     badge: 'bestseller',
     description: 'A brightening vitamin serum for a luminous, even complexion.',
+    image: '/images/jiji/11228247_MzAwLTUwMC1iNWI5ZmRmNTA4.webp',
   },
   {
     id: 'antiseptic-body-wash',
@@ -108,6 +109,7 @@ const rawProducts: Product[] = [
     swatch2: '#b7cdd9',
     accents: ['#7fa3b5', '#eef4f7', '#5d7f8f'],
     description: 'A gentle antibacterial wash that leaves skin clean and balanced.',
+    image: '/images/jiji/10081952_MzAwLTQwMC1jNzgzODE2N2I2LTE.webp',
   },
   {
     id: 'charcoal-detox-cleanser',
@@ -123,6 +125,7 @@ const rawProducts: Product[] = [
     swatch2: '#2c2c2c',
     accents: ['#202020', '#6b6b6b', '#141414'],
     description: 'Deep-cleansing charcoal formula draws out impurities.',
+    image: '/images/jiji/12526089_MzAwLTQwMC1jNWZkMDQ1ZGQ2.webp',
   },
   {
     id: 'clarifying-aha-cleanser',
@@ -138,6 +141,7 @@ const rawProducts: Product[] = [
     swatch2: '#eecfa8',
     accents: ['#d8a96b', '#faf1e6', '#c08a4d'],
     description: 'Alpha-hydroxy acids gently resurface for renewed clarity.',
+    image: '/images/jiji/9607711_MzAwLTMwMS1jNjIyYWE2Mzk4.webp',
   },
   {
     id: 'coconut-oil-lotion',
@@ -155,6 +159,7 @@ const rawProducts: Product[] = [
     accents: ['#e5c9a6', '#fbf3e8', '#cfa97e'],
     badge: 'sale',
     description: 'Whipped coconut hydration for soft, supple skin all day.',
+    image: '/images/jiji/10852542_MzAwLTI4NC1jNWU0OTc1NGNj.webp',
   },
   {
     id: 'collagen-face-cream',
@@ -172,6 +177,7 @@ const rawProducts: Product[] = [
     accents: ['#d69a9a', '#f8ebeb', '#bf7d7d'],
     badge: 'sale',
     description: 'Firming collagen cream restores bounce and elasticity.',
+    image: '/images/jiji/11596981_MzAwLTQwMC0zN2JmY2QwMWVm.webp',
   },
   {
     id: 'cosmetic-firming-serum',
@@ -188,6 +194,7 @@ const rawProducts: Product[] = [
     swatch2: '#c4d6bc',
     accents: ['#93ab86', '#eef3ea', '#7a9370'],
     description: 'Botanical actives visibly lift and firm for a sculpted look.',
+    image: '/images/jiji/6166872_MzAwLTQwMC03OTg2YzBiZTRiLTE.webp',
   },
   {
     id: 'exfoliating-body-scrub',
@@ -203,6 +210,7 @@ const rawProducts: Product[] = [
     swatch2: '#dcbf9b',
     accents: ['#c49a6b', '#f6ebdd', '#a97e4f'],
     description: 'Finely milled minerals buff away dullness for glowing skin.',
+    image: '/images/jiji/12179510_MzAwLTUzMy01NjU2OWY4ZjFl.webp',
   },
   {
     id: 'gentle-foaming-face-wash',
@@ -220,6 +228,7 @@ const rawProducts: Product[] = [
     accents: ['#a9bcc8', '#f3f7f9', '#8aa1af'],
     badge: 'sale',
     description: 'A cloud-soft foam that cleanses without stripping moisture.',
+    image: '/images/jiji/11951695_MzAwLTMwMC0yNjdiZTViMmU0.webp',
   },
   {
     id: 'hydra-glow-mist',
@@ -236,6 +245,7 @@ const rawProducts: Product[] = [
     accents: ['#8fc0c1', '#eef7f7', '#6fa8a9'],
     badge: 'new',
     description: 'A dewy facial mist that delivers an instant surge of hydration.',
+    image: '/images/jiji/10054121_MzAwLTMwMC1kNGY2OGExMzhh.webp',
   },
   {
     id: 'rose-petal-toner',
@@ -251,6 +261,7 @@ const rawProducts: Product[] = [
     swatch2: '#efc9d2',
     accents: ['#d69aa8', '#faf0f2', '#c17f90'],
     description: 'Soothing rosewater tones, balances, and refreshes the skin.',
+    image: '/images/jiji/6213254_MzAwLTUzMy1mNmNiNTk5ZTYw.webp',
   },
   {
     id: 'vitamin-c-booster',
@@ -267,6 +278,7 @@ const rawProducts: Product[] = [
     accents: ['#e0a93f', '#fbf4e3', '#c98f2a'],
     badge: 'bestseller',
     description: 'High-potency vitamin C brightens and evens skin tone.',
+    image: '/images/jiji/11989568_MzAwLTM3Mi1lZjUzMDkwYWU1.webp',
   },
   {
     id: 'retinol-night-serum',
@@ -282,6 +294,7 @@ const rawProducts: Product[] = [
     swatch2: '#d9c4b2',
     accents: ['#a98a6d', '#f4ece3', '#8f6f53'],
     description: 'Encapsulated retinol renews skin overnight while you sleep.',
+    image: '/images/jiji/5805304_MzAwLTQwMC04ZDdjNDBkNDAxLTE.webp',
   },
   {
     id: 'collagen-eye-gel',
@@ -297,6 +310,7 @@ const rawProducts: Product[] = [
     swatch2: '#cfe0d4',
     accents: ['#a3c0ab', '#eef5f0', '#8aa995'],
     description: 'Cooling gel de-puffs and brightens the delicate eye area.',
+    image: '/images/jiji/9802518_MzAwLTM2NS1lNzJhYjRjNjBkLTE.webp',
   },
   {
     id: 'night-repair-mask',
@@ -313,6 +327,7 @@ const rawProducts: Product[] = [
     accents: ['#b793bc', '#f5ecf6', '#a079a6'],
     badge: 'new',
     description: 'An intensive leave-on mask that restores overnight.',
+    image: '/images/jiji/11923681_MzAwLTE3OS0yZjYzZDVjZGJm.webp',
   },
   {
     id: 'hydrating-sheet-set',
@@ -329,6 +344,7 @@ const rawProducts: Product[] = [
     swatch2: '#c3d8e5',
     accents: ['#8fb4c9', '#eef5f9', '#7a9fb5'],
     description: 'A curated set of ultra-hydrating sheet masks for a weekly ritual.',
+    image: '/images/jiji/11147854_MzAwLTQwMC1lNWQ2YTc1MmM2.webp',
   },
   {
     id: 'hair-keratin-mask',
@@ -344,6 +360,7 @@ const rawProducts: Product[] = [
     swatch2: '#e0c9ab',
     accents: ['#c39a6b', '#f6eddf', '#a87f51'],
     description: 'Keratin-rich mask repairs and smooths damaged strands.',
+    image: '/images/jiji/9804463_MzAwLTQ3OS1mOWNkYWU4NmEwLTE.webp',
   },
   {
     id: 'argan-hair-oil',
@@ -359,6 +376,7 @@ const rawProducts: Product[] = [
     swatch2: '#eccf9c',
     accents: ['#d2a75a', '#faf1e0', '#b8893f'],
     description: 'Pure argan oil adds gloss and tames frizz without weight.',
+    image: '/images/jiji/11294076_MzAwLTIyNS0wMDk5ZWNiMDUxLTI.webp',
   },
   {
     id: 'shea-body-butter',
@@ -374,6 +392,7 @@ const rawProducts: Product[] = [
     swatch2: '#edd8c0',
     accents: ['#d2ab85', '#f9f2e9', '#b98d63'],
     description: 'Rich shea butter melts into skin for lasting comfort.',
+    image: '/images/jiji/11406809_MzAwLTQ4NS1kY2NhZmYzOGRhLTE.webp',
   },
   {
     id: 'squalane-face-oil',
@@ -390,6 +409,7 @@ const rawProducts: Product[] = [
     accents: ['#d8b264', '#faf4e7', '#c0964a'],
     badge: 'bestseller',
     description: 'Lightweight squalane locks in moisture for a lit-from-within glow.',
+    image: '/images/jiji/12183403_MzAwLTQwMC00YzM0MjVhY2Ni.webp',
   },
   {
     id: 'sunscreen-spf50',
@@ -405,6 +425,7 @@ const rawProducts: Product[] = [
     swatch2: '#e0dfd8',
     accents: ['#b8b6ac', '#f6f5f2', '#9c9a90'],
     description: 'Invisible broad-spectrum protection with a weightless finish.',
+    image: '/images/jiji/10862134_MzAwLTQwMC03ZDY2YmVjMzBk.webp',
   },
   {
     id: 'retinol-cream',
@@ -420,6 +441,7 @@ const rawProducts: Product[] = [
     swatch2: '#ddcdbd',
     accents: ['#b19a80', '#f5efe8', '#977f64'],
     description: 'A night cream with retinol to smooth fine lines.',
+    image: '/images/jiji/11275296_MzAwLTMwMC1mY2I0Y2VkZmQxLTE.webp',
   },
   {
     id: 'clay-purify-mask',
@@ -435,6 +457,7 @@ const rawProducts: Product[] = [
     swatch2: '#c3d2b7',
     accents: ['#93a887', '#edf3e9', '#7c9371'],
     description: 'Mineral-rich clay draws out excess oil and refines pores.',
+    image: '/images/jiji/10665309_MzAwLTQwMC1kMTAwMTdjZWVk.webp',
   },
   {
     id: 'hyaluronic-toner',
@@ -450,6 +473,7 @@ const rawProducts: Product[] = [
     swatch2: '#c9e2e6',
     accents: ['#9cc3c9', '#eef7f8', '#83aeb5'],
     description: 'A plumping essence that floods skin with hydration.',
+    image: '/images/jiji/9653771_MzAwLTMwMC1jZjU1MmQ3YTdk.webp',
   },
   {
     id: 'brightening-eye-cream',
@@ -465,6 +489,7 @@ const rawProducts: Product[] = [
     swatch2: '#e9cfcf',
     accents: ['#c99a9a', '#f8efef', '#b07f7f'],
     description: 'Targets dark circles and puffiness with a brightening blend.',
+    image: '/images/jiji/11147504_MzAwLTQwMC1hMTU4ZGZjYWIy.webp',
   },
   {
     id: 'overnight-oil-treatment',
@@ -480,6 +505,7 @@ const rawProducts: Product[] = [
     swatch2: '#e4c892',
     accents: ['#c49a4d', '#f7eed8', '#a87f39'],
     description: 'A restorative oil that works while you sleep to revive skin.',
+    image: '/images/jiji/9383153_MzAwLTU5Ni1hNzgzNjFkOWQ3.webp',
   },
   {
     id: 'sugar-body-scrub',
@@ -495,6 +521,7 @@ const rawProducts: Product[] = [
     swatch2: '#efd4a4',
     accents: ['#d8a855', '#fbf2e2', '#c08b3d'],
     description: 'Fine sugar crystals polish skin with a bright citrus scent.',
+    image: '/images/jiji/10580133_MzAwLTI2OS1jODUwYmZjYWIw.webp',
   },
   {
     id: 'anti-pigmentation-serum',
@@ -511,6 +538,7 @@ const rawProducts: Product[] = [
     accents: ['#c19a6f', '#f7f0e6', '#a67f55'],
     badge: 'bestseller',
     description: 'Targets dark spots and uneven tone for a more uniform complexion.',
+    image: '/images/jiji/10160599_MzAwLTI4Mi1hMDNkNDhkZDk1LTE.webp',
   },
   {
     id: 'gentle-milk-cleanser',
@@ -526,6 +554,7 @@ const rawProducts: Product[] = [
     swatch2: '#eee2d2',
     accents: ['#d4b893', '#faf6f0', '#bd9c72'],
     description: 'A creamy, non-foaming cleanser that melts away the day.',
+    image: '/images/jiji/10406099_MzAwLTQwMC1kYmQzZWMzMDM0.webp',
   },
   {
     id: 'skincare-essentials-set',
@@ -542,6 +571,7 @@ const rawProducts: Product[] = [
     swatch2: '#ddd0c3',
     accents: ['#b49c86', '#f5f0ea', '#9a816b'],
     description: 'The complete morning-to-night routine in one curated set.',
+    image: '/images/jiji/5916783_MzAwLTQwMS0wNjRiZTVjODUzLTE.webp',
   },
 
   // ============================================================

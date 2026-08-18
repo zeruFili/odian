@@ -82,13 +82,13 @@ const MEGA_CATEGORIES = [
 
 export function Logo({ light = false }: { light?: boolean }) {
   return (
-    <Link to="/" className="logo" aria-label="Lumière home">
+    <Link to="/" className="logo" aria-label="ODILIA home">
       <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
         <circle cx="16" cy="16" r="15" fill="currentColor" />
         <circle cx="16" cy="16" r="9" fill="none" stroke={light ? '#fdf2f8' : '#fae9ea'} strokeWidth="2.4" />
         <circle cx="16" cy="16" r="3.2" fill={light ? '#fff' : '#fae9ea'} />
       </svg>
-      <span className="logo__word">Lumière</span>
+      <span className="logo__word">ODILIA</span>
     </Link>
   )
 }

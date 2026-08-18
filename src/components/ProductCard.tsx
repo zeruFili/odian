@@ -22,7 +22,7 @@ export default function ProductCard({ product, onAdd }: Props) {
   const addLabel =
     product.type === 'variable' ? 'Select options' :
     product.type === 'grouped' ? 'View products' :
-    product.type === 'external' ? 'Buy on Lumière Store' :
+    product.type === 'external' ? 'Buy on ODILIA Store' :
     product.type === 'outofstock' ? 'Read more' :
     'Add to cart'
 
