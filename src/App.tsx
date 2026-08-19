@@ -21,7 +21,7 @@ export default function App() {
   return (
     <CartProvider>
       <MobileFiltersProvider>
-        <BrowserRouter>
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
           <ScrollToTop />
           <Header />
           <main>

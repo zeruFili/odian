@@ -1118,6 +1118,12 @@ const rawProducts: Product[] = [
  * Orders products so Jiji-sourced listings are interspersed with the original
  * catalog, ensuring imported products are visible on the first page.
  */
+/** Rewrites root-absolute asset paths so they work under any deployment base (e.g. GitHub Pages sub-path). */
+function resolveAsset(path: string): string {
+  const base = import.meta.env.BASE_URL
+  return path.startsWith('/') ? base + path.slice(1) : path
+}
+
 export const products: Product[] = (() => {
   const original = rawProducts.filter((p) => !p.id.startsWith('jiji-'))
   const jiji = rawProducts.filter((p) => p.id.startsWith('jiji-'))
@@ -1127,10 +1133,13 @@ export const products: Product[] = (() => {
   while (oi < original.length || ji < jiji.length) {
     // Two originals, then one Jiji listing (repeating).
     if (oi < original.length) result.push(original[oi++])
-    if (oi < original.length) result.push(original[oi++])
     if (ji < jiji.length) result.push(jiji[ji++])
   }
-  return result
+  return result.map((p) => ({
+    ...p,
+    image: p.image ? resolveAsset(p.image) : undefined,
+    images: p.images?.map(resolveAsset),
+  }))
 })()
 
 /** Products currently on sale (has an original/compare-at price). */

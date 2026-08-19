@@ -78,7 +78,7 @@
 
   /* Layout */
   --content-width: 1296px;
-  --content-padding: clamp(1.5rem, 2vw, 2rem);
+  --content-padding: clamp(1rem, 3.5vw, 2rem);
   --radius-2xl: 1rem;
   --radius-full: 9999px;
 
