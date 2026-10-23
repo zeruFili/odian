@@ -4,10 +4,11 @@ import { onSaleProducts } from '../data/products'
 export default function DiscountPage() {
   return (
     <CollectionPage
-      title="Discount"
-      subtitle="Save on skincare favourites — limited-time offers with the original price and discounted price shown."
-      crumb="Discount"
-      accent="var(--color-pink-50)"
+      title="Promotions & Limited Offers"
+      subtitle="Exclusive savings on clinical skincare favourites — each product clearly displays its original price, discount percentage, and current offer."
+      crumb="Discounts"
+      heroBadge="Limited Time Savings"
+      accent="linear-gradient(135deg, #fdf4f0 0%, #f7e6dc 100%)"
       items={onSaleProducts}
     />
   )

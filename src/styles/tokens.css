@@ -1,90 +1,106 @@
 :root {
-  /* Color palette (Skinelle-inspired design tokens) */
-  --color-white: #ffffff;
-  --color-pink-50: #fdf2f8;
-  --color-pink-60: #fae9ea;
-  --color-pink-100: #fce7f3;
-  --color-stone-50: #fafaf9;
-  --color-stone-100: #f5f5f4;
-  --color-stone-200: #e7e5e4;
-  --color-stone-300: #d6d3d1;
-  --color-stone-600: #57534e;
-  --color-stone-700: #44403c;
-  --color-stone-800: #292524;
-  --color-stone-950: #0c0a09;
-  --color-orange-50: #fff7ed;
-  --color-orange-100: #ffedd5;
-  --color-red-600: #dc2626;
-  --color-violet-50: #f5f3ff;
-  --color-violet-100: #ede9fe;
-  --color-violet-400: #a78bfa;
-  --color-indigo-50: #eef2ff;
-  --color-zinc-800: #27272a;
+  /* ============================================================
+     Luxury Botanical Skincare Design Tokens (ODILIA)
+     ============================================================ */
 
-  /* Semantic */
+  /* Neutral & Base Palette */
+  --color-white: #ffffff;
+  --color-porcelain: #faf8f5;
+  --color-cream: #f6f1ec;
+  --color-sand: #eee7de;
+  --color-stone-100: #f5f3f0;
+  --color-stone-200: #e8e2dc;
+  --color-stone-300: #d6cfc7;
+  --color-stone-400: #a89f95;
+  --color-stone-600: #6b635c;
+  --color-stone-700: #423d38;
+  --color-stone-800: #2a2522;
+  --color-stone-900: #1b1715;
+  --color-stone-950: #141210;
+
+  /* Brand Accents */
+  --color-gold-300: #e2cbb2;
+  --color-gold-400: #d2b393;
+  --color-gold-500: #c59b6d;
+  --color-gold-600: #b58957;
+  --color-gold-700: #936836;
+
+  --color-rose-100: #fbf3f0;
+  --color-rose-200: #f5e4dd;
+  --color-rose-500: #d49a88;
+
+  --color-sage-100: #eef4f0;
+  --color-sage-500: #467055;
+
+  --color-terracotta: #c25841;
+  --color-terracotta-bg: #fdf2ef;
+
+  /* Semantic Variables */
   --color-bg: var(--color-white);
+  --color-bg-subtle: var(--color-porcelain);
+  --color-bg-card: var(--color-white);
   --color-text: var(--color-stone-800);
+  --color-text-muted: var(--color-stone-600);
+  --color-text-light: var(--color-stone-400);
   --color-heading: var(--color-stone-950);
-  --color-muted: var(--color-stone-600);
   --color-border: var(--color-stone-200);
-  --color-product-bg: #f0ebe6;
+  --color-border-subtle: #f0ebe4;
+  --color-product-bg: #f6f3ee;
 
   /* Typography */
-  --font-sans: 'Figtree', system-ui, sans-serif;
-  --font-serif: 'EB Garamond', Georgia, serif;
+  --font-sans: 'Figtree', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'EB Garamond', Georgia, 'Times New Roman', serif;
 
-  --fs-sm: 0.875rem;
-  --fs-base: 1rem;
-  --fs-lg: 1.125rem;
-  --fs-xl: 1.25rem;
-  --fs-2xl: 1.5rem;
-  --fs-3xl: 1.875rem;
-  --fs-4xl: 2.25rem;
-  --fs-5xl: 3rem;
-  --fs-6xl: 4rem;
+  --fs-xs: 0.75rem;     /* 12px */
+  --fs-sm: 0.875rem;    /* 14px */
+  --fs-base: 1rem;      /* 16px */
+  --fs-lg: 1.125rem;    /* 18px */
+  --fs-xl: 1.25rem;     /* 20px */
+  --fs-2xl: 1.5rem;     /* 24px */
+  --fs-3xl: 1.875rem;   /* 30px */
+  --fs-4xl: 2.25rem;    /* 36px */
+  --fs-5xl: 3rem;       /* 48px */
+  --fs-6xl: 3.75rem;    /* 60px */
 
-  --lh-100: 1;
-  --lh-113: 1.13;
-  --lh-120: 1.2;
-  --lh-140: 1.4;
-  --lh-156: 1.56;
-  --lh-163: 1.63;
-  --lh-171: 1.71;
+  --lh-tight: 1.15;
+  --lh-snug: 1.3;
+  --lh-normal: 1.55;
+  --lh-relaxed: 1.65;
 
-  --ls-none: 0px;
-  --ls-14: 0.14px;
-  --ls-16: 0.16px;
-  --ls-18: 0.18px;
-  --ls-20: 0.2px;
-  --ls-24: 0.24px;
-
-  /* Spacing scale */
+  /* Spacing Scale */
   --sp-1: 0.25rem;
   --sp-2: 0.5rem;
   --sp-3: 0.75rem;
   --sp-4: 1rem;
   --sp-5: 1.25rem;
   --sp-6: 1.5rem;
-  --sp-7: 1.75rem;
   --sp-8: 2rem;
   --sp-10: 2.5rem;
   --sp-12: 3rem;
-  --sp-14: clamp(1.5rem, 1.1296rem + 1.9753vw, 3.5rem);
   --sp-16: 4rem;
   --sp-20: 5rem;
   --sp-24: 6rem;
-  --sp-28: clamp(4rem, 3.4444rem + 2.963vw, 7rem);
-  --sp-32: clamp(4rem, 3.2593rem + 3.9506vw, 8rem);
 
-  /* Layout */
-  --content-width: 1296px;
-  --content-padding: clamp(1rem, 3.5vw, 2rem);
-  --radius-2xl: 1rem;
+  /* Layout & Radii */
+  --content-width: 1320px;
+  --content-padding: clamp(1rem, 4vw, 2.5rem);
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
-  --shadow-sm: 0 1px 2px rgba(12, 10, 9, 0.06);
-  --shadow-md: 0 8px 24px rgba(12, 10, 9, 0.08);
-  --shadow-lg: 0 16px 48px rgba(12, 10, 9, 0.12);
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(20, 18, 16, 0.04);
+  --shadow-md: 0 4px 14px rgba(20, 18, 16, 0.06);
+  --shadow-card: 0 4px 20px -2px rgba(20, 18, 16, 0.05);
+  --shadow-card-hover: 0 16px 36px -4px rgba(20, 18, 16, 0.1);
+  --shadow-popover: 0 12px 36px rgba(20, 18, 16, 0.12);
+  --shadow-drawer: -8px 0 40px rgba(20, 18, 16, 0.15);
 
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Animation Easing */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }

@@ -1,4 +1,4 @@
-﻿export type ProductType = 'simple' | 'variable' | 'grouped' | 'external' | 'outofstock'
+export type ProductType = 'simple' | 'variable' | 'grouped' | 'external' | 'outofstock'
 export type Currency = 'USD' | 'ETB'
 
 export interface Product {
@@ -18,9 +18,9 @@ export interface Product {
   accents: string[]
   badge?: 'sale' | 'new' | 'bestseller'
   description: string
-  /** External product image (sourced from Jiji Ethiopia). Falls back to generated SVG when absent. */
+  /** Primary product photography */
   image?: string
-  /** Additional gallery images for the product detail page. */
+  /** Additional gallery images for the product detail page */
   images?: string[]
   /** Currency of the listed price. Defaults to USD. */
   currency?: Currency
@@ -28,23 +28,33 @@ export interface Product {
   location?: string
 }
 
-const ETB_PER_USD = 130
+export const ETB_PER_USD = 130
 
 /** Formats a product price in its native currency. */
-export function formatPrice(product: Product, value?: number): string {
-  const amount = value ?? product.price
-  if ((product.currency ?? 'USD') === 'ETB') {
-    return `ETB ${Math.round(amount).toLocaleString('en-US')}`
+export function formatPrice(product: Product, value?: number, targetCurrency?: Currency): string {
+  const effectiveCurrency = targetCurrency ?? product.currency ?? 'USD'
+  const baseInUsd = priceInUsd(product, value)
+
+  if (effectiveCurrency === 'ETB') {
+    const etbAmount = targetCurrency === 'ETB' && product.currency !== 'ETB' 
+      ? Math.round(baseInUsd * ETB_PER_USD) 
+      : Math.round(value ?? product.price)
+    return `ETB ${etbAmount.toLocaleString('en-US')}`
   }
-  return `$${amount.toFixed(2)}`
+
+  const usdAmount = targetCurrency === 'USD' && product.currency === 'ETB'
+    ? baseInUsd
+    : (value ?? product.price)
+  return `$${usdAmount.toFixed(2)}`
 }
 
 /** Normalized price in USD, used for sorting and the price filter. */
-export function priceInUsd(product: Product): number {
+export function priceInUsd(product: Product, overridePrice?: number): number {
+  const price = overridePrice ?? product.price
   if ((product.currency ?? 'USD') === 'ETB') {
-    return product.price / ETB_PER_USD
+    return price / ETB_PER_USD
   }
-  return product.price
+  return price
 }
 
 export const CATEGORIES = [
@@ -68,13 +78,13 @@ export const SKIN_TYPES = ['Combination', 'Dry', 'Sensitive', 'Normal', 'Oily'] 
 
 export const CATEGORY_TICKER = [
   'Night repair masks',
-  'Cleansers',
-  'Sunscreens',
-  'Toners & mists',
-  'Shower gels',
-  'Retinol treatments',
-  'Collagen boosters',
-  'Hydrating serums',
+  'Gentle foam cleansers',
+  'UVA/UVB sunscreens',
+  'Hydra-glow mists',
+  'Botanical body washes',
+  'Retinol renewal treatments',
+  'Collagen elasticity boosters',
+  'Antioxidant vitamin C serums',
 ]
 
 const rawProducts: Product[] = [
@@ -87,14 +97,19 @@ const rawProducts: Product[] = [
     price: 80.5,
     compareAtPrice: 98,
     rating: 5,
-    reviews: 1,
+    reviews: 18,
     type: 'simple',
     swatch: '#f3e3d7',
     swatch2: '#e8b48a',
     accents: ['#c98a5f', '#f6ede4', '#b3a596'],
     badge: 'bestseller',
-    description: 'A brightening vitamin serum for a luminous, even complexion.',
-    image: '/images/jiji/11228247_MzAwLTUwMC1iNWI5ZmRmNTA4.webp',
+    description: 'A brightening vitamin C serum enriched with ferulic acid and hyaluronic spheres for a luminous, deeply hydrated complexion.',
+    image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1608248597359-338245781a8b?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'antiseptic-body-wash',
@@ -104,13 +119,17 @@ const rawProducts: Product[] = [
     skinTypes: ['Normal', 'Oily'],
     price: 30,
     rating: 5,
-    reviews: 1,
+    reviews: 14,
     type: 'simple',
     swatch: '#e7edf2',
     swatch2: '#b7cdd9',
     accents: ['#7fa3b5', '#eef4f7', '#5d7f8f'],
-    description: 'A gentle antibacterial wash that leaves skin clean and balanced.',
-    image: '/images/jiji/10081952_MzAwLTQwMC1jNzgzODE2N2I2LTE.webp',
+    description: 'A gentle antibacterial tea tree and eucalyptus wash that leaves skin thoroughly cleansed, calmed, and refreshed.',
+    image: 'https://images.unsplash.com/photo-1585232351009-aa87416fca90?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1585232351009-aa87416fca90?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'charcoal-detox-cleanser',
@@ -121,13 +140,18 @@ const rawProducts: Product[] = [
     price: 28,
     compareAtPrice: 36,
     rating: 4,
-    reviews: 1,
+    reviews: 22,
     type: 'simple',
     swatch: '#4a4a4a',
     swatch2: '#2c2c2c',
     accents: ['#202020', '#6b6b6b', '#141414'],
-    description: 'Deep-cleansing charcoal formula draws out impurities.',
-    image: '/images/jiji/12526089_MzAwLTQwMC1jNWZkMDQ1ZGQ2.webp',
+    badge: 'sale',
+    description: 'Activated charcoal micro-formula draws out deep impurities, controls excess sebum, and minimizes congested pores.',
+    image: 'https://images.unsplash.com/photo-1556228722-d0b5d0f81f44?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1556228722-d0b5d0f81f44?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1619451334792-150fd785ee74?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'clarifying-aha-cleanser',
@@ -138,13 +162,18 @@ const rawProducts: Product[] = [
     price: 29,
     compareAtPrice: 36,
     rating: 4,
-    reviews: 1,
+    reviews: 9,
     type: 'simple',
     swatch: '#f6e7d8',
     swatch2: '#eecfa8',
     accents: ['#d8a96b', '#faf1e6', '#c08a4d'],
-    description: 'Alpha-hydroxy acids gently resurface for renewed clarity.',
-    image: '/images/jiji/9607711_MzAwLTMwMS1jNjIyYWE2Mzk4.webp',
+    badge: 'sale',
+    description: 'Alpha-hydroxy acids gently resurface micro-textures for renewed clarity, cellular turnover, and silky smooth tone.',
+    image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'coconut-oil-lotion',
@@ -155,14 +184,18 @@ const rawProducts: Product[] = [
     price: 10,
     compareAtPrice: 14,
     rating: 5,
-    reviews: 1,
+    reviews: 31,
     type: 'outofstock',
     swatch: '#fdf6ee',
     swatch2: '#f0e2cf',
     accents: ['#e5c9a6', '#fbf3e8', '#cfa97e'],
     badge: 'sale',
-    description: 'Whipped coconut hydration for soft, supple skin all day.',
-    image: '/images/jiji/10852542_MzAwLTI4NC1jNWU0OTc1NGNj.webp',
+    description: 'Whipped cold-pressed coconut hydration providing 24-hour nourishment for soft, supple, velvety skin.',
+    image: 'https://images.unsplash.com/photo-1526947425960-945c6e72858f?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1526947425960-945c6e72858f?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'collagen-face-cream',
@@ -173,14 +206,18 @@ const rawProducts: Product[] = [
     price: 14,
     compareAtPrice: 24,
     rating: 4,
-    reviews: 1,
+    reviews: 16,
     type: 'simple',
     swatch: '#f3dede',
     swatch2: '#eac2c2',
     accents: ['#d69a9a', '#f8ebeb', '#bf7d7d'],
     badge: 'sale',
-    description: 'Firming collagen cream restores bounce and elasticity.',
-    image: '/images/jiji/11596981_MzAwLTQwMC0zN2JmY2QwMWVm.webp',
+    description: 'Multi-peptide firming collagen cream that strengthens skin barrier resilience and restores youthful elasticity.',
+    image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'cosmetic-firming-serum',
@@ -191,13 +228,17 @@ const rawProducts: Product[] = [
     price: 32,
     priceMax: 80,
     rating: 4,
-    reviews: 1,
+    reviews: 12,
     type: 'variable',
     swatch: '#e8efe4',
     swatch2: '#c4d6bc',
     accents: ['#93ab86', '#eef3ea', '#7a9370'],
-    description: 'Botanical actives visibly lift and firm for a sculpted look.',
-    image: '/images/jiji/6166872_MzAwLTQwMC03OTg2YzBiZTRiLTE.webp',
+    description: 'Potent botanical actives with centella and green tea extract visibly lift, sculpt, and firm facial contours.',
+    image: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'exfoliating-body-scrub',
@@ -208,13 +249,18 @@ const rawProducts: Product[] = [
     price: 58,
     compareAtPrice: 72,
     rating: 5,
-    reviews: 1,
+    reviews: 27,
     type: 'external',
     swatch: '#f0e0cd',
     swatch2: '#dcbf9b',
     accents: ['#c49a6b', '#f6ebdd', '#a97e4f'],
-    description: 'Finely milled minerals buff away dullness for glowing skin.',
-    image: '/images/jiji/12179510_MzAwLTUzMy01NjU2OWY4ZjFl.webp',
+    badge: 'sale',
+    description: 'Finely milled volcanic minerals, botanical oils, and sea salts gently buff away dullness for baby-soft, glowing skin.',
+    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'gentle-foaming-face-wash',
@@ -225,14 +271,18 @@ const rawProducts: Product[] = [
     price: 38,
     compareAtPrice: 50,
     rating: 5,
-    reviews: 1,
+    reviews: 43,
     type: 'simple',
     swatch: '#eef2f5',
     swatch2: '#d5e0e6',
     accents: ['#a9bcc8', '#f3f7f9', '#8aa1af'],
     badge: 'sale',
-    description: 'A cloud-soft foam that cleanses without stripping moisture.',
-    image: '/images/jiji/11951695_MzAwLTMwMC0yNjdiZTViMmU0.webp',
+    description: 'A cloud-soft amino acid foam that melts sunscreen and impurities without stripping vital moisture lipids.',
+    image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'hydra-glow-mist',
@@ -242,14 +292,18 @@ const rawProducts: Product[] = [
     skinTypes: ['Dry', 'Normal'],
     price: 26,
     rating: 5,
-    reviews: 1,
+    reviews: 19,
     type: 'simple',
     swatch: '#e3f0f1',
     swatch2: '#c2dfe0',
     accents: ['#8fc0c1', '#eef7f7', '#6fa8a9'],
     badge: 'new',
-    description: 'A dewy facial mist that delivers an instant surge of hydration.',
-    image: '/images/jiji/10054121_MzAwLTMwMC1kNGY2OGExMzhh.webp',
+    description: 'A micro-fine dewy facial mist infused with glacier water and niacinamide for an instant surge of radiance.',
+    image: 'https://images.unsplash.com/photo-1608248597359-338245781a8b?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1608248597359-338245781a8b?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'rose-petal-toner',
@@ -260,13 +314,18 @@ const rawProducts: Product[] = [
     price: 24,
     compareAtPrice: 30,
     rating: 4,
-    reviews: 1,
+    reviews: 35,
     type: 'simple',
     swatch: '#f7e4e8',
     swatch2: '#efc9d2',
     accents: ['#d69aa8', '#faf0f2', '#c17f90'],
-    description: 'Soothing rosewater tones, balances, and refreshes the skin.',
-    image: '/images/jiji/6213254_MzAwLTUzMy1mNmNiNTk5ZTYw.webp',
+    badge: 'sale',
+    description: 'Steam-distilled organic rose damascena water tones, rebalances pH, and calms surface sensitivity instantly.',
+    image: 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1608248597359-338245781a8b?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'vitamin-c-booster',
@@ -277,14 +336,18 @@ const rawProducts: Product[] = [
     price: 46,
     compareAtPrice: 58,
     rating: 5,
-    reviews: 1,
+    reviews: 62,
     type: 'simple',
     swatch: '#fdf0d6',
     swatch2: '#f7d99a',
     accents: ['#e0a93f', '#fbf4e3', '#c98f2a'],
     badge: 'bestseller',
-    description: 'High-potency vitamin C brightens and evens skin tone.',
-    image: '/images/jiji/11989568_MzAwLTM3Mi1lZjUzMDkwYWU1.webp',
+    description: 'Stabilized 20% L-ascorbic acid booster targets hyperpigmentation, protects against environmental stressors, and boosts collagen synthesis.',
+    image: 'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'retinol-night-serum',
@@ -295,13 +358,18 @@ const rawProducts: Product[] = [
     price: 62,
     compareAtPrice: 78,
     rating: 5,
-    reviews: 1,
+    reviews: 29,
     type: 'simple',
     swatch: '#efe6dd',
     swatch2: '#d9c4b2',
     accents: ['#a98a6d', '#f4ece3', '#8f6f53'],
-    description: 'Encapsulated retinol renews skin overnight while you sleep.',
-    image: '/images/jiji/5805304_MzAwLTQwMC04ZDdjNDBkNDAxLTE.webp',
+    badge: 'sale',
+    description: 'Micro-encapsulated pure retinol works with skin’s nightly repair cycle to smooth deep lines and accelerate cellular turnover.',
+    image: 'https://images.unsplash.com/photo-1556228722-d0b5d0f81f44?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1556228722-d0b5d0f81f44?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'collagen-eye-gel',
@@ -312,13 +380,18 @@ const rawProducts: Product[] = [
     price: 34,
     compareAtPrice: 42,
     rating: 4,
-    reviews: 1,
+    reviews: 15,
     type: 'simple',
     swatch: '#e8f0ea',
     swatch2: '#cfe0d4',
     accents: ['#a3c0ab', '#eef5f0', '#8aa995'],
-    description: 'Cooling gel de-puffs and brightens the delicate eye area.',
-    image: '/images/jiji/9802518_MzAwLTM2NS1lNzJhYjRjNjBkLTE.webp',
+    badge: 'sale',
+    description: 'Cooling peptide-infused gel with caffeine immediately de-puffs tired under-eyes and hydrates delicate skin tissue.',
+    image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'night-repair-mask',
@@ -329,14 +402,18 @@ const rawProducts: Product[] = [
     price: 42,
     compareAtPrice: 52,
     rating: 5,
-    reviews: 1,
+    reviews: 38,
     type: 'simple',
     swatch: '#efe3f0',
     swatch2: '#dcc6df',
     accents: ['#b793bc', '#f5ecf6', '#a079a6'],
     badge: 'new',
-    description: 'An intensive leave-on mask that restores overnight.',
-    image: '/images/jiji/11923681_MzAwLTE3OS0yZjYzZDVjZGJm.webp',
+    description: 'An intensive velvety leave-on sleeping mask that wraps skin in barrier-replenishing ceramides and moisture-locking squalane.',
+    image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1619451334792-150fd785ee74?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'hydrating-sheet-set',
@@ -347,13 +424,18 @@ const rawProducts: Product[] = [
     price: 55,
     priceMax: 68,
     rating: 5,
-    reviews: 1,
+    reviews: 44,
     type: 'grouped',
     swatch: '#e6eff5',
     swatch2: '#c3d8e5',
     accents: ['#8fb4c9', '#eef5f9', '#7a9fb5'],
-    description: 'A curated set of ultra-hydrating sheet masks for a weekly ritual.',
-    image: '/images/jiji/11147854_MzAwLTQwMC1lNWQ2YTc1MmM2.webp',
+    badge: 'bestseller',
+    description: 'A curated 5-piece box of biocellulose sheet masks soaked in concentrated hyaluronic acid, tremella mushroom, and panthenol.',
+    image: 'https://images.unsplash.com/photo-1573461160327-b450ce3d8e7f?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1573461160327-b450ce3d8e7f?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1567928815116-2a8138908d01?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'hair-keratin-mask',
@@ -364,13 +446,18 @@ const rawProducts: Product[] = [
     price: 36,
     compareAtPrice: 46,
     rating: 4,
-    reviews: 1,
+    reviews: 19,
     type: 'simple',
     swatch: '#f0e4d4',
     swatch2: '#e0c9ab',
     accents: ['#c39a6b', '#f6eddf', '#a87f51'],
-    description: 'Keratin-rich mask repairs and smooths damaged strands.',
-    image: '/images/jiji/9804463_MzAwLTQ3OS1mOWNkYWU4NmEwLTE.webp',
+    badge: 'sale',
+    description: 'Hydrolyzed biomimetic keratin restores damaged cuticles, reinforces hair cortex strength, and imparts mirror-like shine.',
+    image: 'https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'argan-hair-oil',
@@ -381,13 +468,18 @@ const rawProducts: Product[] = [
     price: 40,
     compareAtPrice: 50,
     rating: 5,
-    reviews: 1,
+    reviews: 51,
     type: 'simple',
     swatch: '#f6e9cf',
     swatch2: '#eccf9c',
     accents: ['#d2a75a', '#faf1e0', '#b8893f'],
-    description: 'Pure argan oil adds gloss and tames frizz without weight.',
-    image: '/images/jiji/11294076_MzAwLTIyNS0wMDk5ZWNiMDUxLTI.webp',
+    badge: 'bestseller',
+    description: 'Virgin cold-pressed Moroccan argan oil calms flyaways, seals split ends, and delivers weightless gloss with thermal defense.',
+    image: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'shea-body-butter',
@@ -398,13 +490,18 @@ const rawProducts: Product[] = [
     price: 22,
     compareAtPrice: 28,
     rating: 4,
-    reviews: 1,
+    reviews: 26,
     type: 'simple',
     swatch: '#f7eede',
     swatch2: '#edd8c0',
     accents: ['#d2ab85', '#f9f2e9', '#b98d63'],
-    description: 'Rich shea butter melts into skin for lasting comfort.',
-    image: '/images/jiji/11406809_MzAwLTQ4NS1kY2NhZmYzOGRhLTE.webp',
+    badge: 'sale',
+    description: 'Artisanal unrefined shea butter whipped with jojoba and almond oils to instantly soothe dry, flakey skin.',
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'squalane-face-oil',
@@ -415,14 +512,18 @@ const rawProducts: Product[] = [
     price: 48,
     compareAtPrice: 60,
     rating: 5,
-    reviews: 1,
+    reviews: 67,
     type: 'simple',
     swatch: '#f8efdc',
     swatch2: '#ecd9a8',
     accents: ['#d8b264', '#faf4e7', '#c0964a'],
     badge: 'bestseller',
-    description: 'Lightweight squalane locks in moisture for a lit-from-within glow.',
-    image: '/images/jiji/12183403_MzAwLTQwMC00YzM0MjVhY2Ni.webp',
+    description: '100% plant-derived sugarcane squalane locks in deep hydration, improves skin elasticity, and produces a glass-skin finish.',
+    image: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'sunscreen-spf50',
@@ -433,13 +534,18 @@ const rawProducts: Product[] = [
     price: 32,
     compareAtPrice: 40,
     rating: 4,
-    reviews: 1,
+    reviews: 41,
     type: 'simple',
     swatch: '#f2f1ed',
     swatch2: '#e0dfd8',
     accents: ['#b8b6ac', '#f6f5f2', '#9c9a90'],
-    description: 'Invisible broad-spectrum protection with a weightless finish.',
-    image: '/images/jiji/10862134_MzAwLTQwMC03ZDY2YmVjMzBk.webp',
+    badge: 'sale',
+    description: 'Invisible broad-spectrum SPF 50+ sunscreen that leaves zero white cast, absorbs cleanly, and wears perfectly under makeup.',
+    image: 'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'retinol-cream',
@@ -450,13 +556,18 @@ const rawProducts: Product[] = [
     price: 54,
     compareAtPrice: 68,
     rating: 4,
-    reviews: 1,
+    reviews: 23,
     type: 'simple',
     swatch: '#f0e8df',
     swatch2: '#ddcdbd',
     accents: ['#b19a80', '#f5efe8', '#977f64'],
-    description: 'A night cream with retinol to smooth fine lines.',
-    image: '/images/jiji/11275296_MzAwLTMwMC1mY2I0Y2VkZmQxLTE.webp',
+    badge: 'sale',
+    description: 'Rich night cream featuring slow-release retinol and bakuchiol to gently diminish wrinkles while deeply conditioning skin.',
+    image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'clay-purify-mask',
@@ -467,13 +578,18 @@ const rawProducts: Product[] = [
     price: 30,
     compareAtPrice: 38,
     rating: 4,
-    reviews: 1,
+    reviews: 18,
     type: 'simple',
     swatch: '#dfe8d8',
     swatch2: '#c3d2b7',
     accents: ['#93a887', '#edf3e9', '#7c9371'],
-    description: 'Mineral-rich clay draws out excess oil and refines pores.',
-    image: '/images/jiji/10665309_MzAwLTQwMC1kMTAwMTdjZWVk.webp',
+    badge: 'sale',
+    description: 'French Montmorillonite green clay and spirulina decongest oily pores, regulate sebum, and detoxify without overdrying.',
+    image: 'https://images.unsplash.com/photo-1619451334792-150fd785ee74?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1619451334792-150fd785ee74?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'hyaluronic-toner',
@@ -484,14 +600,18 @@ const rawProducts: Product[] = [
     price: 27,
     compareAtPrice: 34,
     rating: 5,
-    reviews: 1,
+    reviews: 49,
     type: 'simple',
     swatch: '#e6f1f3',
     swatch2: '#c9e2e6',
     accents: ['#9cc3c9', '#eef7f8', '#83aeb5'],
     badge: 'new',
-    description: 'A plumping essence that floods skin with hydration.',
-    image: '/images/jiji/9653771_MzAwLTMwMC1jZjU1MmQ3YTdk.webp',
+    description: 'Triple-weight molecular hyaluronic acid essence plumps the epidermis and preps skin to absorb active serums deeper.',
+    image: 'https://images.unsplash.com/photo-1608248597359-338245781a8b?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1608248597359-338245781a8b?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'brightening-eye-cream',
@@ -502,13 +622,18 @@ const rawProducts: Product[] = [
     price: 39,
     compareAtPrice: 49,
     rating: 4,
-    reviews: 1,
+    reviews: 21,
     type: 'simple',
     swatch: '#f5e8e8',
     swatch2: '#e9cfcf',
     accents: ['#c99a9a', '#f8efef', '#b07f7f'],
-    description: 'Targets dark circles and puffiness with a brightening blend.',
-    image: '/images/jiji/11147504_MzAwLTQwMC1hMTU4ZGZjYWIy.webp',
+    badge: 'sale',
+    description: 'Niacinamide, pearl extract, and squalane visibly brighten dark circles while smoothing fine expression lines.',
+    image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'overnight-oil-treatment',
@@ -519,13 +644,18 @@ const rawProducts: Product[] = [
     price: 58,
     compareAtPrice: 72,
     rating: 5,
-    reviews: 1,
+    reviews: 33,
     type: 'simple',
     swatch: '#f2e4c8',
     swatch2: '#e4c892',
     accents: ['#c49a4d', '#f7eed8', '#a87f39'],
-    description: 'A restorative oil that works while you sleep to revive skin.',
-    image: '/images/jiji/9383153_MzAwLTU5Ni1hNzgzNjFkOWQ3.webp',
+    badge: 'bestseller',
+    description: 'An elixir of rosehip seed, evening primrose, and marula oils providing essential omega fatty acids for overnight restoration.',
+    image: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'sugar-body-scrub',
@@ -536,13 +666,18 @@ const rawProducts: Product[] = [
     price: 34,
     compareAtPrice: 42,
     rating: 4,
-    reviews: 1,
+    reviews: 17,
     type: 'simple',
     swatch: '#f8ead2',
     swatch2: '#efd4a4',
     accents: ['#d8a855', '#fbf2e2', '#c08b3d'],
-    description: 'Fine sugar crystals polish skin with a bright citrus scent.',
-    image: '/images/jiji/10580133_MzAwLTI2OS1jODUwYmZjYWIw.webp',
+    badge: 'sale',
+    description: 'Fine organic cane sugar crystals blended with cold-pressed sweet orange and grapefruit oils polish and invigorate skin.',
+    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'anti-pigmentation-serum',
@@ -553,14 +688,18 @@ const rawProducts: Product[] = [
     price: 72,
     compareAtPrice: 90,
     rating: 5,
-    reviews: 1,
+    reviews: 58,
     type: 'simple',
     swatch: '#f3e9dd',
     swatch2: '#e5cdb2',
     accents: ['#c19a6f', '#f7f0e6', '#a67f55'],
     badge: 'bestseller',
-    description: 'Targets dark spots and uneven tone for a more uniform complexion.',
-    image: '/images/jiji/10160599_MzAwLTI4Mi1hMDNkNDhkZDk1LTE.webp',
+    description: 'Alpha arbutin, tranexamic acid, and licorice root target stubborn sun damage and post-blemish dark marks for an even glow.',
+    image: 'https://images.unsplash.com/photo-1608248597359-338245781a8b?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1608248597359-338245781a8b?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'gentle-milk-cleanser',
@@ -571,13 +710,18 @@ const rawProducts: Product[] = [
     price: 25,
     compareAtPrice: 31,
     rating: 4,
-    reviews: 1,
+    reviews: 20,
     type: 'simple',
     swatch: '#f8f3ec',
     swatch2: '#eee2d2',
     accents: ['#d4b893', '#faf6f0', '#bd9c72'],
-    description: 'A creamy, non-foaming cleanser that melts away the day.',
-    image: '/images/jiji/10406099_MzAwLTQwMC1kYmQzZWMzMDM0.webp',
+    badge: 'sale',
+    description: 'A comforting, non-foaming emulsion with oat milk and chamomile that dissolves makeup while respecting sensitive skin barriers.',
+    image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=900&q=85'
+    ],
   },
   {
     id: 'skincare-essentials-set',
@@ -588,13 +732,18 @@ const rawProducts: Product[] = [
     price: 120,
     priceMax: 140,
     rating: 5,
-    reviews: 1,
+    reviews: 74,
     type: 'grouped',
     swatch: '#f0eae4',
     swatch2: '#ddd0c3',
     accents: ['#b49c86', '#f5f0ea', '#9a816b'],
-    description: 'The complete morning-to-night routine in one curated set.',
-    image: '/images/jiji/5916783_MzAwLTQwMS0wNjRiZTVjODUzLTE.webp',
+    badge: 'bestseller',
+    description: 'The definitive 4-step ritual: Gentle Cleanser, Hydrating Essence, Radiance Serum, and Barrier Recovery Cream.',
+    image: 'https://images.unsplash.com/photo-1567928815116-2a8138908d01?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1567928815116-2a8138908d01?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1573461160327-b450ce3d8e7f?auto=format&fit=crop&w=900&q=85'
+    ],
   },
 
   // ============================================================
@@ -610,13 +759,17 @@ const rawProducts: Product[] = [
     skinTypes: ['Normal', 'Oily'],
     price: 3100,
     rating: 4,
-    reviews: 3,
+    reviews: 13,
     type: 'simple',
     swatch: '#e8f0f4',
     swatch2: '#c4d8e2',
     accents: ['#2e6d8c', '#ffffff', '#1f4f68'],
-    description: 'Original Cetaphil face cleanser for normal to oily skin, 236 ml.',
-    image: '/images/jiji/10746691_MzAwLTQ1MS02NGE3YmVkNjVk.webp',
+    description: 'Original Cetaphil face cleanser for normal to oily skin, 236 ml. Deep cleanses without stripping moisture.',
+    image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'Cetaphil',
     location: 'Addis Ababa, Bole',
@@ -629,14 +782,18 @@ const rawProducts: Product[] = [
     skinTypes: ['Dry', 'Sensitive'],
     price: 4600,
     rating: 5,
-    reviews: 2,
+    reviews: 28,
     type: 'simple',
     swatch: '#e6f0ea',
     swatch2: '#c5dccb',
     accents: ['#1f7a4d', '#ffffff', '#165a39'],
-    description: 'Original CeraVe Hydrating Cleanser from the USA — gentle, non-foaming, fragrance-free.',
-    image: '/images/jiji/11153346_MzAwLTY2Ny00MjRlMDQxMmQxLTE.webp',
-    images: ["/images/jiji/10446348_MzAwLTMzMC1mMDhiMTE0ZDhk.webp","/images/jiji/5916860_MzAwLTU5My0yNWVmODdmYTIxLTE.webp"],
+    badge: 'bestseller',
+    description: 'Original CeraVe Hydrating Cleanser from the USA with ceramides and hyaluronic acid — gentle, non-foaming, fragrance-free.',
+    image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'CeraVe',
     location: 'Addis Ababa, Yeka',
@@ -649,14 +806,17 @@ const rawProducts: Product[] = [
     skinTypes: ['Oily', 'Combination'],
     price: 2900,
     rating: 4,
-    reviews: 2,
+    reviews: 16,
     type: 'simple',
     swatch: '#eef2f5',
     swatch2: '#d3dde3',
     accents: ['#0077b6', '#ffffff', '#005a8c'],
-    description: '10% benzoyl peroxide acne wash treatment for breakouts and clogged pores.',
-    image: '/images/jiji/11607007_MzAwLTQwOC1kNzE2Mzk1MmY3LTE.webp',
-    images: ["/images/jiji/7380657_MzAwLTQwMC1lMGJiOTQzNjkzLTE.webp"],
+    description: '10% Maximum Strength Benzoyl Peroxide acne wash treatment for stubborn breakouts and clogged pores.',
+    image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1556228722-d0b5d0f81f44?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'PanOxyl',
     location: 'Addis Ababa, Bole',
@@ -673,14 +833,17 @@ const rawProducts: Product[] = [
     compareAtPrice: 4800,
     badge: 'new',
     rating: 5,
-    reviews: 4,
+    reviews: 32,
     type: 'simple',
     swatch: '#f6efe4',
     swatch2: '#e6d6bc',
     accents: ['#c89f5e', '#ffffff', '#a67f3f'],
-    description: 'COSRX Niacinamide 15% Face Serum — a powerful solution to tighten pores and control oil.',
-    image: '/images/jiji/5832086_MzAwLTM2MC02ZjUxYjA0MzNmLTE.webp',
-    images: ["/images/jiji/12000110_MzAwLTMwMC1jNWNkYTdjODZk.webp","/images/jiji/11999930_MzAwLTMwMC0wOTAzYzVjMDAw.webp"],
+    description: 'COSRX The Niacinamide 15% Face Serum with Zinc PCA — a powerful clinical solution to tighten pores and regulate oil.',
+    image: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'COSRX',
     location: 'Addis Ababa, Bole',
@@ -695,14 +858,17 @@ const rawProducts: Product[] = [
     compareAtPrice: 8800,
     badge: 'new',
     rating: 4,
-    reviews: 2,
+    reviews: 19,
     type: 'simple',
     swatch: '#f4efe9',
     swatch2: '#e0d6c9',
     accents: ['#8a6f52', '#ffffff', '#6b5340'],
-    description: 'Naturium Niacinamide 12% + Zinc 2% — reduces dark spots, pores, and excess oil.',
-    image: '/images/jiji/10439965_MzAwLTQwMC01ZjUyZjg3MWE3.webp',
-    images: ["/images/jiji/11341003_MzAwLTM3NS0xYWI5NjdkOTNk.webp"],
+    description: 'Naturium Niacinamide 12% Plus Zinc 2% — clinically formulated to diminish dark spots, enlarged pores, and uneven tone.',
+    image: 'https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'Naturium',
     location: 'Addis Ababa, Bole',
@@ -715,16 +881,19 @@ const rawProducts: Product[] = [
     skinTypes: ['Normal', 'Dry'],
     price: 6000,
     compareAtPrice: 7200,
-    badge: 'new',
+    badge: 'bestseller',
     rating: 5,
-    reviews: 3,
+    reviews: 47,
     type: 'simple',
     swatch: '#f6e9dc',
     swatch2: '#ecd2b4',
     accents: ['#d98e3f', '#ffffff', '#b56f28'],
-    description: 'La Roche-Posay Vitamin C face and neck serum — anti-aging, brightening, and smoothing.',
-    image: '/images/jiji/5916688_MzAwLTUzNS02ZDdmOTM5NTQ2LTE.webp',
-    images: ["/images/jiji/8599059_MzAwLTY2Ny1mNDI2NTAxNzMx.webp","/images/jiji/10455275_MzAwLTQwMi1jZDI5ODM5ZTNjLTE.webp"],
+    description: 'Pure 10% Vitamin C Serum with salicylic acid and neurosensine for sensitive skin — anti-aging, smoothing, and radiant.',
+    image: 'https://images.unsplash.com/photo-1608248597359-338245781a8b?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1608248597359-338245781a8b?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'La Roche-Posay',
     location: 'Addis Ababa, Bole',
@@ -739,14 +908,17 @@ const rawProducts: Product[] = [
     compareAtPrice: 9600,
     badge: 'new',
     rating: 5,
-    reviews: 3,
+    reviews: 35,
     type: 'simple',
     swatch: '#f5efe7',
     swatch2: '#e4d9c9',
     accents: ['#b04a5a', '#ffffff', '#8a3745'],
-    description: 'Eucerin Anti-Pigment Dual Serum with patented Thiamidol — fades dark spots and hyperpigmentation.',
-    image: '/images/jiji/11942961_MzAwLTM5Ni01NTBiMjZkOWJh.webp',
-    images: ["/images/jiji/11942715_MzAwLTM5Ni0zZDI2ZjhjM2Ey.webp"],
+    description: 'Eucerin Anti-Pigment Dual Serum with patented Thiamidol and concentrated hyaluronic acid — fades dark spots in 2 weeks.',
+    image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'Eucerin',
     location: 'Addis Ababa, Nifas Silk-Lafto',
@@ -761,13 +933,17 @@ const rawProducts: Product[] = [
     skinTypes: ['Oily', 'Combination'],
     price: 1200,
     rating: 4,
-    reviews: 2,
+    reviews: 14,
     type: 'simple',
     swatch: '#3a3a3a',
     swatch2: '#222222',
     accents: ['#000000', '#ffffff', '#0a0a0a'],
-    description: 'Black charcoal peel-off face mask — whitening and anti-wrinkle, 300 g.',
-    image: '/images/jiji/5445831_MzAwLTI3NC1iZDIwYmM0OTZlLTE.webp',
+    description: 'Purifying black charcoal peel-off face mask — pulls out blackheads and dead surface cells, 300 g.',
+    image: 'https://images.unsplash.com/photo-1619451334792-150fd785ee74?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1619451334792-150fd785ee74?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1556228722-d0b5d0f81f44?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'Unbranded',
     location: 'Addis Ababa, Bole',
@@ -780,13 +956,16 @@ const rawProducts: Product[] = [
     skinTypes: ['Oily', 'Normal'],
     price: 2000,
     rating: 4,
-    reviews: 1,
+    reviews: 11,
     type: 'simple',
     swatch: '#2f2f2f',
     swatch2: '#1b1b1b',
     accents: ['#0c0c0c', '#ffffff', '#000000'],
-    description: 'YC Black Mask with bamboo charcoal — a powerful deep-cleansing treatment for a clearer, more radiant complexion.',
-    image: '/images/jiji/11985224_MzAwLTMwMC00OWI3MDcxNmZl.webp',
+    description: 'YC Black Mask with organic bamboo charcoal — an intensive deep-cleansing ritual for a refined, clearer complexion.',
+    image: 'https://images.unsplash.com/photo-1619451334792-150fd785ee74?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1619451334792-150fd785ee74?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'YC',
     location: 'Addis Ababa, Kirkos',
@@ -799,13 +978,16 @@ const rawProducts: Product[] = [
     skinTypes: ['Normal', 'Combination'],
     price: 1299,
     rating: 4,
-    reviews: 1,
+    reviews: 8,
     type: 'simple',
     swatch: '#e8f0ee',
     swatch2: '#c9dcda',
     accents: ['#2f9e8f', '#ffffff', '#237a6e'],
-    description: 'Balea Peel-Off Mask removes dirt, oil, and dead skin for a deep clean.',
-    image: '/images/jiji/8902650_MzAwLTQwMC02ZTkzZTA5NjY4.webp',
+    description: 'Balea Peel-Off Mask with thermal water and witch hazel removes dirt, sebum, and dead skin cells gently.',
+    image: 'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'Balea',
     location: 'Addis Ababa, Arada',
@@ -820,14 +1002,18 @@ const rawProducts: Product[] = [
     skinTypes: ['Dry', 'Normal'],
     price: 3150,
     rating: 5,
-    reviews: 3,
+    reviews: 64,
     type: 'simple',
     swatch: '#f4ede2',
     swatch2: '#e2d3bd',
     accents: ['#a9814f', '#ffffff', '#8a653a'],
-    description: 'Beauty of Joseon eye cream — deeply hydrates while reducing fine lines and dark circles.',
-    image: '/images/jiji/10476161_MzAwLTQ5MC00YmY1YTAyMTQ5LTE.webp',
-    images: ["/images/jiji/8806039_MzAwLTQ2OC1iYjA3MzU4NmIy.webp","/images/jiji/12288628_MzAwLTMwMC1hMmYyMzhiNWFm.webp"],
+    badge: 'bestseller',
+    description: 'Revive Eye Serum with Ginseng and Retinal — deeply hydrates delicate orbital skin while smoothing crow’s feet.',
+    image: 'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'Beauty of Joseon',
     location: 'Addis Ababa, Addis Ketema',
@@ -840,14 +1026,17 @@ const rawProducts: Product[] = [
     skinTypes: ['Sensitive', 'Dry'],
     price: 4000,
     rating: 4,
-    reviews: 2,
+    reviews: 24,
     type: 'simple',
     swatch: '#eef2f0',
     swatch2: '#d2ddd9',
     accents: ['#1f6b52', '#ffffff', '#174f3d'],
-    description: 'Original CeraVe Eye Repair Cream — helps reduce dark circles under eyes.',
-    image: '/images/jiji/11269259_MzAwLTQwMC1iYzQ4OWQ5Y2Rj.webp',
-    images: ["/images/jiji/10436424_MzAwLTM0OS0xMTA2YTc1MzM1LTE.webp","/images/jiji/9802629_MzAwLTI4MC03ZWM0ZTFiYjIxLTE.webp"],
+    description: 'Original CeraVe Eye Repair Cream with marine botanicals and essential ceramides helps diminish dark circles and puffiness.',
+    image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'CeraVe',
     location: 'Addis Ababa, Bole',
@@ -860,13 +1049,16 @@ const rawProducts: Product[] = [
     skinTypes: ['Normal', 'Combination'],
     price: 4950,
     rating: 4,
-    reviews: 2,
+    reviews: 17,
     type: 'simple',
     swatch: '#f2ede4',
     swatch2: '#e0d4c0',
     accents: ['#9c8a5e', '#ffffff', '#7a6a45'],
-    description: 'The Inkey List Retinol Eye Cream — overnight, slow-release 3% retinol compound for the eye area.',
-    image: '/images/jiji/10087814_MzAwLTMwMC1kZDk5NjAwMGFl.webp',
+    description: 'The Inkey List Retinol Eye Cream — an overnight slow-release 3% Vitalease retinol complex engineered for the eye area.',
+    image: 'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'The Inkey List',
     location: 'Addis Ababa, Bole',
@@ -881,16 +1073,19 @@ const rawProducts: Product[] = [
     skinTypes: ['Combination', 'Normal'],
     price: 4500,
     compareAtPrice: 5400,
-    badge: 'new',
+    badge: 'bestseller',
     rating: 5,
-    reviews: 3,
+    reviews: 83,
     type: 'simple',
     swatch: '#f3ede2',
     swatch2: '#e0d3bc',
     accents: ['#b08a55', '#ffffff', '#8f6d3f'],
-    description: 'The Ordinary Glycolic Acid 7% Exfoliating Toner — renews skin and removes dead cells.',
-    image: '/images/jiji/12308879_MzAwLTc2My0xNTlhYzY2NGVk.webp',
-    images: ["/images/jiji/11744922_MzAwLTQwMC02MTQzODBmZTU4.webp","/images/jiji/5446515_MzAwLTI0MS1mN2YzNmY4ZGM3LTE.webp"],
+    description: 'The Ordinary Glycolic Acid 7% Exfoliating Toner — chemically exfoliates dead surface cells to unveil smooth clarity.',
+    image: 'https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1608248597359-338245781a8b?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'The Ordinary',
     location: 'Addis Ababa, Arada',
@@ -906,14 +1101,18 @@ const rawProducts: Product[] = [
     price: 5500,
     compareAtPrice: 6500,
     rating: 5,
-    reviews: 3,
+    reviews: 39,
     type: 'simple',
     swatch: '#e6f0f2',
     swatch2: '#c2d9de',
     accents: ['#1f6f8a', '#ffffff', '#175468'],
-    description: 'Dermatologist-recommended moisturizing lotion for dry, sensitive skin.',
-    image: '/images/jiji/12173657_MzAwLTQwMC0zNjJkY2JiN2Yz.webp',
-    images: ["/images/jiji/12387773_MzAwLTMwMC1mYzY5OTk5Mjgx.webp","/images/jiji/10461887_MzAwLTQwMC0xYjgxMTA1NGEx.webp"],
+    badge: 'sale',
+    description: 'Dermatologist-recommended lightweight daily moisturizing lotion enriched with vitamin E and pro-vitamin B5.',
+    image: 'https://images.unsplash.com/photo-1576426863848-c21f53c60b19?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1576426863848-c21f53c60b19?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'Cetaphil',
     location: 'Addis Ababa, Bole',
@@ -926,16 +1125,19 @@ const rawProducts: Product[] = [
     skinTypes: ['Normal', 'Dry'],
     price: 6500,
     compareAtPrice: 7800,
-    badge: 'new',
+    badge: 'bestseller',
     rating: 5,
-    reviews: 4,
+    reviews: 95,
     type: 'simple',
     swatch: '#e8f0ea',
     swatch2: '#c9dcce',
     accents: ['#1f7a4d', '#ffffff', '#165a39'],
-    description: 'CeraVe Daily Moisturizing Lotion 591 ml — with hyaluronic acid and ceramides.',
-    image: '/images/jiji/11148014_MzAwLTI3NC1hMTE2MTQzYWUx.webp',
-    images: ["/images/jiji/12189279_MzAwLTQwMC00Y2E4MDUwOWVl.webp","/images/jiji/12316629_MzAwLTQwMC1jZTIyYTgxNDA3.webp"],
+    description: 'CeraVe Daily Moisturizing Lotion 591 ml with MVE delivery technology, 3 essential ceramides, and hyaluronic acid.',
+    image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1576426863848-c21f53c60b19?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'CeraVe',
     location: 'Addis Ababa, Bole',
@@ -948,14 +1150,17 @@ const rawProducts: Product[] = [
     skinTypes: ['Dry', 'Sensitive'],
     price: 2600,
     rating: 4,
-    reviews: 2,
+    reviews: 18,
     type: 'simple',
     swatch: '#f7efe0',
     swatch2: '#ecdcc2',
     accents: ['#d6a96a', '#ffffff', '#b88a4a'],
-    description: 'Organic and original shea butter — softens and smooths dry skin.',
-    image: '/images/jiji/10508911_MzAwLTI3OC01OWI1YzU2OTlj.webp',
-    images: ["/images/jiji/10464386_MzAwLTQwMC04ZGVmMzk1MDQ2.webp"],
+    description: '100% pure organic grade-A golden shea butter — deeply heals extreme dryness, cracked heels, and eczema patches.',
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'Nuba',
     location: 'Addis Ababa, Bole',
@@ -970,13 +1175,16 @@ const rawProducts: Product[] = [
     skinTypes: ['Normal', 'Dry'],
     price: 1350,
     rating: 4,
-    reviews: 1,
+    reviews: 12,
     type: 'simple',
     swatch: '#f8ecda',
     swatch2: '#ecd2ab',
     accents: ['#e08a3a', '#ffffff', '#b86a28'],
-    description: 'Fruit of the Wokali Scrub — a natural sherbet scrub available in different flavors.',
-    image: '/images/jiji/12179430_MzAwLTUzMy1lM2QzMDc3Y2Rm.webp',
+    description: 'Fruit of the Wokali Sherbet Body Scrub with crushed walnut shells and fruit extracts for silky soft exfoliation.',
+    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'Fruit of the Wokali',
     location: 'Addis Ababa, Kolfe Keranio',
@@ -991,14 +1199,16 @@ const rawProducts: Product[] = [
     skinTypes: ['Dry', 'Normal'],
     price: 4000,
     rating: 4,
-    reviews: 2,
+    reviews: 15,
     type: 'simple',
     swatch: '#fdf9f1',
     swatch2: '#f0e6d3',
     accents: ['#d8b98a', '#ffffff', '#b8965f'],
-    description: 'Odourless coconut oil from South Africa — excellent for hair and skincare.',
-    image: '/images/jiji/10297564_MzAwLTQzMi1jMGMyNDQ3M2Y2.webp',
-    images: ["/images/jiji/10363611_MzAwLTQwMC0wNmNiNDE4NTNjLTE.webp","/images/jiji/10852542_MzAwLTI4NC1jNWU0OTc1NGNj.webp"],
+    description: 'Pure fractionated odourless coconut oil imported from South Africa — non-greasy carrier oil for head-to-toe beauty routines.',
+    image: 'https://images.unsplash.com/photo-1526947425960-945c6e72858f?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1526947425960-945c6e72858f?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'Unbranded',
     location: 'Addis Ababa, Bole',
@@ -1013,16 +1223,19 @@ const rawProducts: Product[] = [
     skinTypes: ['Sensitive', 'Normal'],
     price: 3800,
     compareAtPrice: 4600,
-    badge: 'new',
+    badge: 'bestseller',
     rating: 5,
-    reviews: 3,
+    reviews: 53,
     type: 'simple',
     swatch: '#eef4ef',
     swatch2: '#d2e3d6',
     accents: ['#3f8f5f', '#ffffff', '#2f6f48'],
-    description: 'SKIN1004 Madagascar Centella Hyalu Cica Water-Fit Sun Serum — blocks harmful UV rays while hydrating.',
-    image: '/images/jiji/11173482_MzAwLTY2Ny0xYmVjNzc1NDg5LTE.webp',
-    images: ["/images/jiji/11961918_MzAwLTMwMC05OTMzZGUzMTRm.webp","/images/jiji/9237851_MzAwLTQwMC0wZDRhMmE5NTZm.webp"],
+    description: 'SKIN1004 Madagascar Centella Hyalu-Cica Water-Fit Sun Serum SPF 50+ PA++++ — ultra-hydrating, zero white cast.',
+    image: 'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'SKIN1004',
     location: 'Addis Ababa, Yeka',
@@ -1035,15 +1248,19 @@ const rawProducts: Product[] = [
     skinTypes: ['Oily', 'Normal'],
     price: 5500,
     compareAtPrice: 6600,
+    badge: 'bestseller',
     rating: 5,
-    reviews: 2,
+    reviews: 71,
     type: 'simple',
     swatch: '#f4efe8',
     swatch2: '#e3d9c9',
     accents: ['#c86a2a', '#ffffff', '#a5541f'],
-    description: 'La Roche-Posay Anthelios UVMune 400 Invisible Fluid SPF 50+ — ultra-high UVA/UVB protection.',
-    image: '/images/jiji/10340947_MzAwLTMwMS02MjkzMTg3NmZh.webp',
-    images: ["/images/jiji/11216718_MzAwLTY2Ny03MWJmZjU4MTkzLTE.webp","/images/jiji/11216689_MzAwLTY2Ny0wNTY2ZDM0MWZkLTE.webp"],
+    description: 'La Roche-Posay Anthelios UVMune 400 Invisible Fluid SPF 50+ — ultra-high UVA/UVB shield resistant to water and sweat.',
+    image: 'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'La Roche-Posay',
     location: 'Addis Ababa, Bole',
@@ -1058,16 +1275,18 @@ const rawProducts: Product[] = [
     skinTypes: ['Normal'],
     price: 1350,
     compareAtPrice: 1600,
-    badge: 'new',
+    badge: 'sale',
     rating: 4,
-    reviews: 5,
+    reviews: 37,
     type: 'simple',
     swatch: '#eef2f4',
     swatch2: '#d0dbe0',
     accents: ['#1f6f8a', '#ffffff', '#175468'],
-    description: 'Kirkland Minoxidil 5% from the USA — clinically proven hair regrowth treatment.',
-    image: '/images/jiji/10566597_MzAwLTI5Ny03NzNlYmUyODdmLTE.webp',
-    images: ["/images/jiji/11493852_MzAwLTM4MC05N2ExYWY4M2Zi.webp","/images/jiji/9248644_MzAwLTM4NC03ZDlkOGIxYjQ3LTE.webp"],
+    description: 'Original Kirkland Signature Minoxidil 5% topical solution from the USA — clinically proven treatment for hair regrowth.',
+    image: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'Kirkland',
     location: 'Addis Ababa, Bole',
@@ -1079,16 +1298,20 @@ const rawProducts: Product[] = [
     categories: ['Hair Care', 'Oils'],
     skinTypes: ['Normal', 'Dry'],
     price: 2000,
+    badge: 'new',
     rating: 4,
-    reviews: 2,
+    reviews: 21,
     type: 'simple',
     swatch: '#f2eddf',
     swatch2: '#e0d5bb',
     accents: ['#8a9a4f', '#ffffff', '#6b7a3a'],
-    description: 'Alecrim (rosemary) hair oil — nourishes the scalp and supports healthy hair growth.',
-    image: '/images/jiji/8895687_MzAwLTQwMC05ODM5YzdjZmNmLTE.webp',
+    description: 'Alecrim (organic rosemary) scalp infusion oil — stimulates hair follicle circulation and strengthens weak strands.',
+    image: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
-    brand: 'Unbranded',
+    brand: 'Alecrim',
     location: 'Addis Ababa, Bole',
   },
 
@@ -1100,26 +1323,29 @@ const rawProducts: Product[] = [
     categories: ['Body Care', 'Cleansers'],
     skinTypes: ['Oily', 'Combination'],
     price: 2000,
+    badge: 'bestseller',
     rating: 4,
-    reviews: 3,
+    reviews: 42,
     type: 'simple',
     swatch: '#f6e9d0',
     swatch2: '#ecd2a0',
     accents: ['#e0a030', '#ffffff', '#b87e20'],
-    description: 'Turmeric and Kojic soap — brightens and evens skin tone, reduces dark spots and acne marks.',
-    image: '/images/jiji/11650369_MzAwLTQwMC1mYmZmMTQ2ZDYwLTE.webp',
+    description: 'Natural organic Turmeric and Kojic Acid botanical bar — brightens hyperpigmentation and clears blemishes naturally.',
+    image: 'https://images.unsplash.com/photo-1607006314647-49339a957863?auto=format&fit=crop&w=900&q=85',
+    images: [
+      'https://images.unsplash.com/photo-1607006314647-49339a957863?auto=format&fit=crop&w=900&q=85'
+    ],
     currency: 'ETB',
     brand: 'Unbranded',
     location: 'Addis Ababa, Bole',
   },
 ]
 
-/**
- * Orders products so Jiji-sourced listings are interspersed with the original
- * catalog, ensuring imported products are visible on the first page.
- */
-/** Rewrites root-absolute asset paths so they work under any deployment base (e.g. GitHub Pages sub-path). */
+/** Rewrites root-absolute asset paths so they work under any deployment base. */
 function resolveAsset(path: string): string {
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+    return path
+  }
   const base = import.meta.env.BASE_URL
   return path.startsWith('/') ? base + path.slice(1) : path
 }
@@ -1131,7 +1357,6 @@ export const products: Product[] = (() => {
   let oi = 0
   let ji = 0
   while (oi < original.length || ji < jiji.length) {
-    // Two originals, then one Jiji listing (repeating).
     if (oi < original.length) result.push(original[oi++])
     if (ji < jiji.length) result.push(jiji[ji++])
   }
@@ -1145,7 +1370,7 @@ export const products: Product[] = (() => {
 /** Products currently on sale (has an original/compare-at price). */
 export const onSaleProducts: Product[] = products.filter((p) => p.compareAtPrice != null)
 
-/** Recently added / new-arrival products (flagged new or recently sourced from Jiji). */
+/** Recently added / new-arrival products (flagged new or recently sourced). */
 export const newArrivalProducts: Product[] = products.filter(
   (p) => p.badge === 'new' || p.id.startsWith('jiji-'),
 )
