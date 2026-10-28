@@ -77,7 +77,7 @@ export default function QuickViewModal({ product, onClose }: Props) {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl border border-gray-200 relative overflow-hidden animate-scale-up"
+        className="bg-white rounded-3xl max-w-2xl w-full p-4 sm:p-7 shadow-2xl border border-gray-200 relative max-h-[92vh] overflow-y-auto animate-scale-up"
         onClick={(e) => e.stopPropagation()}
       >
         <button

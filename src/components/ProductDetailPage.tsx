@@ -185,22 +185,22 @@ export default function ProductDetailPage() {
     <div className="bg-[#f8faf7] min-h-screen py-6 sm:py-10">
       <div className="max-w-[1600px] mx-auto px-3.5 sm:px-6 lg:px-8 space-y-10">
         {/* Breadcrumb Navigation (Doqa style) */}
-        <nav className="flex items-center gap-2 text-xs text-gray-500 font-semibold truncate" aria-label="Breadcrumb">
-          <Link to="/" className="hover:text-emerald-950 transition-colors">
+        <nav className="flex items-center gap-1.5 sm:gap-2 text-xs text-gray-500 font-semibold overflow-x-auto scrollbar-none whitespace-nowrap pb-1" aria-label="Breadcrumb">
+          <Link to="/" className="hover:text-emerald-950 transition-colors shrink-0">
             Home
           </Link>
-          <span>/</span>
-          <Link to="/" className="hover:text-emerald-950 transition-colors">
+          <span className="shrink-0">/</span>
+          <Link to="/" className="hover:text-emerald-950 transition-colors shrink-0">
             Catalog
           </Link>
-          <span>/</span>
+          <span className="shrink-0">/</span>
           <Link
             to={`/?category=${encodeURIComponent(product.category)}`}
-            className="hover:text-emerald-950 transition-colors"
+            className="hover:text-emerald-950 transition-colors shrink-0"
           >
             {product.category}
           </Link>
-          <span>/</span>
+          <span className="shrink-0">/</span>
           <span className="text-gray-900 truncate">{product.name}</span>
         </nav>
 
@@ -476,66 +476,73 @@ export default function ProductDetailPage() {
 
               {/* Quantity Stepper & Add to Bag Actions */}
               <div className="pt-2 space-y-3">
-                <div className="flex items-center gap-3">
-                  {!isOutOfStock && (
-                    <div className="flex items-center border border-gray-200 rounded-xl bg-gray-50 p-1 shrink-0">
-                      <button
-                        onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                        className="w-8 h-8 rounded-lg bg-white border border-gray-200 text-gray-700 font-bold text-sm flex items-center justify-center hover:bg-gray-100"
-                        aria-label="Decrease quantity"
-                      >
-                        −
-                      </button>
-                      <span className="w-10 text-center font-bold text-sm font-display text-gray-900">
-                        {quantity}
-                      </span>
-                      <button
-                        onClick={() => setQuantity((q) => q + 1)}
-                        className="w-8 h-8 rounded-lg bg-white border border-gray-200 text-gray-700 font-bold text-sm flex items-center justify-center hover:bg-gray-100"
-                        aria-label="Increase quantity"
-                      >
-                        +
-                      </button>
-                    </div>
-                  )}
-
-                  <button
-                    disabled={isOutOfStock}
-                    onClick={handleAdd}
-                    className={`flex-1 py-3.5 px-6 rounded-xl font-bold text-xs sm:text-sm text-white shadow-md active:scale-98 transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed ${
-                      hasDiscount
-                        ? "bg-rose-600 hover:bg-rose-700 shadow-rose-900/10"
-                        : "bg-[#123d32] hover:bg-[#1a4a3e]"
-                    }`}
-                  >
-                    {added ? (
-                      <>
-                        <CheckIcon size={16} className="text-white" />
-                        <span>Added to Bag!</span>
-                      </>
-                    ) : (
-                      <>
-                        <BagIcon size={16} className={hasDiscount ? "text-white" : "text-amber-400"} />
-                        <span>{isOutOfStock ? "Sold Out" : "Add to Shopping Bag"}</span>
-                      </>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <div className="flex items-center justify-between sm:justify-start gap-3">
+                    {!isOutOfStock && (
+                      <div className="flex items-center border border-gray-200 rounded-xl bg-gray-50 p-1 shrink-0">
+                        <button
+                          onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                          className="w-8 h-8 rounded-lg bg-white border border-gray-200 text-gray-700 font-bold text-sm flex items-center justify-center hover:bg-gray-100"
+                          aria-label="Decrease quantity"
+                        >
+                          −
+                        </button>
+                        <span className="w-10 text-center font-bold text-sm font-display text-gray-900">
+                          {quantity}
+                        </span>
+                        <button
+                          onClick={() => setQuantity((q) => q + 1)}
+                          className="w-8 h-8 rounded-lg bg-white border border-gray-200 text-gray-700 font-bold text-sm flex items-center justify-center hover:bg-gray-100"
+                          aria-label="Increase quantity"
+                        >
+                          +
+                        </button>
+                      </div>
                     )}
-                  </button>
+                    <span className="sm:hidden text-xs font-semibold text-emerald-800">
+                      {isOutOfStock ? "Restocking Batch" : "Ready to Dispatch"}
+                    </span>
+                  </div>
 
-                  {!isOutOfStock && (
+                  <div className="flex-1 flex flex-col min-[440px]:flex-row items-stretch gap-2.5">
                     <button
-                      onClick={handleBuyNow}
-                      className="py-3.5 px-5 bg-white border border-gray-300 hover:border-gray-900 text-gray-900 rounded-xl font-bold text-xs sm:text-sm transition-colors shrink-0 shadow-2xs"
+                      disabled={isOutOfStock}
+                      onClick={handleAdd}
+                      className={`flex-1 py-3.5 px-4 sm:px-6 rounded-xl font-bold text-xs sm:text-sm text-white shadow-md active:scale-98 transition-all flex items-center justify-center gap-2 min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed ${
+                        hasDiscount
+                          ? "bg-rose-600 hover:bg-rose-700 shadow-rose-900/10"
+                          : "bg-[#123d32] hover:bg-[#1a4a3e]"
+                      }`}
                     >
-                      Instant Checkout
+                      {added ? (
+                        <>
+                          <CheckIcon size={16} className="text-white" />
+                          <span>Added to Bag!</span>
+                        </>
+                      ) : (
+                        <>
+                          <BagIcon size={16} className={hasDiscount ? "text-white" : "text-amber-400"} />
+                          <span>{isOutOfStock ? "Sold Out" : "Add to Shopping Bag"}</span>
+                        </>
+                      )}
                     </button>
-                  )}
+
+                    {!isOutOfStock && (
+                      <button
+                        onClick={handleBuyNow}
+                        className="py-3.5 px-4 sm:px-5 bg-white border border-gray-300 hover:border-gray-900 text-gray-900 rounded-xl font-bold text-xs sm:text-sm transition-colors shrink-0 shadow-2xs min-h-[44px] flex items-center justify-center"
+                      >
+                        Instant Checkout
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Informational Tabs (Doqa Style Card) */}
             <div className="bg-white rounded-3xl border border-gray-200 shadow-xs overflow-hidden">
-              <div className="flex border-b border-gray-200 bg-gray-50/70 p-1.5 gap-1.5 overflow-x-auto scrollbar-none">
+              <div className="flex border-b border-gray-200 bg-gray-50/70 p-1.5 gap-1.5 overflow-x-auto scrollbar-none whitespace-nowrap">
                 {[
                   { id: "desc", label: "Science & Formula" },
                   { id: "how", label: "Application Ritual" },
@@ -556,7 +563,7 @@ export default function ProductDetailPage() {
                 ))}
               </div>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {activeTab === "desc" && (
                   <div className="space-y-4 text-xs sm:text-sm text-gray-600 leading-relaxed">
                     <h3 className="text-base font-bold text-gray-900 font-display">
@@ -685,7 +692,7 @@ export default function ProductDetailPage() {
 
                       <button
                         onClick={() => setReviewFormOpen(!reviewFormOpen)}
-                        className="px-4 py-2 bg-emerald-950 text-white rounded-xl text-xs font-bold hover:bg-emerald-900 transition-colors shadow-2xs self-start"
+                        className="w-full sm:w-auto px-4 py-2.5 bg-emerald-950 text-white rounded-xl text-xs font-bold hover:bg-emerald-900 transition-colors shadow-2xs"
                       >
                         {reviewFormOpen ? "Cancel Review" : "Write a Verified Review"}
                       </button>
@@ -751,7 +758,7 @@ export default function ProductDetailPage() {
 
                         <button
                           type="submit"
-                          className="px-5 py-2.5 bg-[#123d32] text-white rounded-xl text-xs font-bold hover:bg-[#1a4a3e]"
+                          className="w-full sm:w-auto px-5 py-2.5 bg-[#123d32] text-white rounded-xl text-xs font-bold hover:bg-[#1a4a3e]"
                         >
                           Submit Verified Review
                         </button>
@@ -815,7 +822,7 @@ export default function ProductDetailPage() {
             </Link>
           </div>
 
-          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {related.map((p) => (
               <ProductCard
                 key={p.id}

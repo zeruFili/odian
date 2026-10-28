@@ -29,7 +29,7 @@ export default function Footer() {
     <footer className="bg-[#123d32] text-white border-t border-emerald-900/60 mt-16 sm:mt-24">
       {/* Upper Assurance Banner (Doqa Rental Style) */}
       <div className="border-b border-white/10">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-amber-400 shrink-0">
               <TruckIcon size={24} />
@@ -75,9 +75,9 @@ export default function Footer() {
       </div>
 
       {/* Main Footer Links (Doqa Rental Style) */}
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
         {/* Brand Column */}
-        <div className="space-y-4">
+        <div className="space-y-4 sm:col-span-2 md:col-span-1">
           <Logo light={true} />
           <p className="text-xs text-emerald-200/70 leading-relaxed max-w-sm">
             Pioneering botanical skincare science. We unite cold-pressed natural essences with clinical bio-ferments to restore cellular barriers and unlock lifelong natural luminosity.
@@ -160,18 +160,18 @@ export default function Footer() {
                 ✓ Welcome! Use code <strong>WELCOME15</strong> at checkout.
               </div>
             ) : (
-              <form onSubmit={handleSubscribe} className="flex gap-2">
+              <form onSubmit={handleSubscribe} className="flex flex-col min-[380px]:flex-row gap-2">
                 <input
                   type="email"
                   required
                   placeholder="Enter your email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-1.5 text-xs bg-white/10 rounded-xl border border-white/20 text-white placeholder-emerald-300/50 outline-none focus:border-amber-400"
+                  className="w-full px-3 py-2 text-xs bg-white/10 rounded-xl border border-white/20 text-white placeholder-emerald-300/50 outline-none focus:border-amber-400"
                 />
                 <button
                   type="submit"
-                  className="px-3.5 py-1.5 bg-amber-400 text-emerald-950 rounded-xl text-xs font-bold hover:bg-amber-300 transition-colors whitespace-nowrap"
+                  className="px-4 py-2 bg-amber-400 text-emerald-950 rounded-xl text-xs font-bold hover:bg-amber-300 transition-colors whitespace-nowrap active:scale-98"
                 >
                   Join
                 </button>
@@ -183,9 +183,9 @@ export default function Footer() {
 
       {/* Bottom Bar (Doqa Style) */}
       <div className="border-t border-white/10 py-6">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-emerald-200/60">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-emerald-200/60 text-center sm:text-left">
           <p>© {new Date().getFullYear()} ODILIA Cosmetics Laboratories. All rights reserved.</p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-center">
             <VisaIcon size={34} />
             <MastercardIcon size={34} />
             <GooglePayIcon size={34} />

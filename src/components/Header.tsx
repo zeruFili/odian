@@ -9,9 +9,9 @@ import ProductImage from "./ProductImage";
 
 export function Logo({ light = false }: { light?: boolean }) {
   return (
-    <Link to="/" className="flex items-center gap-2.5 sm:gap-3 shrink-0 group">
+    <Link to="/" className="flex items-center gap-2 sm:gap-3 shrink-0 group">
       <div
-        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl font-display font-black text-sm sm:text-base flex items-center justify-center shadow-md group-hover:scale-105 transition-transform ${
+        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl font-display font-black text-xs sm:text-base flex items-center justify-center shadow-md group-hover:scale-105 transition-transform ${
           light ? "bg-amber-400 text-emerald-950" : "bg-[#123d32] text-amber-400"
         }`}
       >
@@ -19,14 +19,14 @@ export function Logo({ light = false }: { light?: boolean }) {
       </div>
       <div>
         <span
-          className={`font-display font-black text-lg sm:text-xl tracking-tight block leading-tight ${
+          className={`font-display font-black text-base sm:text-xl tracking-tight block leading-tight ${
             light ? "text-white" : "text-gray-950"
           }`}
         >
           ODILIA
         </span>
         <span
-          className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest block ${
+          className={`text-[8px] sm:text-[10px] font-bold uppercase tracking-widest hidden min-[380px]:block ${
             light ? "text-emerald-200/80" : "text-emerald-800"
           }`}
         >
@@ -44,13 +44,16 @@ export default function Header() {
   const { count: wishlistCount, openWishlist } = useWishlist();
   const { currency, setCurrency } = useCurrency();
 
+  const [scrolledPast, setScrolledPast] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const currencyRef = useRef<HTMLDivElement>(null);
+  const staticCurrencyRef = useRef<HTMLDivElement>(null);
+  const floatingCurrencyRef = useRef<HTMLDivElement>(null);
+  const staticSearchInputRef = useRef<HTMLInputElement>(null);
+  const floatingSearchInputRef = useRef<HTMLInputElement>(null);
 
   // Close search & menus on route change
   useEffect(() => {
@@ -59,17 +62,52 @@ export default function Header() {
     setCurrencyDropdownOpen(false);
   }, [location.pathname]);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
+  // Scroll listener: smoothly slide in the navigation bar when scrolling down
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const threshold = window.innerWidth >= 640 ? 110 : 90;
+      setScrolledPast(scrollY > threshold);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   // Focus search input when opened
   useEffect(() => {
-    if (searchOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
+    if (searchOpen) {
+      const timer = setTimeout(() => {
+        if (scrolledPast && floatingSearchInputRef.current) {
+          floatingSearchInputRef.current.focus();
+        } else if (staticSearchInputRef.current) {
+          staticSearchInputRef.current.focus();
+        }
+      }, 50);
+      return () => clearTimeout(timer);
     }
-  }, [searchOpen]);
+  }, [searchOpen, scrolledPast]);
 
-  // Close dropdown on outside click
+  // Close currency dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (currencyRef.current && !currencyRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const inStatic = staticCurrencyRef.current?.contains(target);
+      const inFloating = floatingCurrencyRef.current?.contains(target);
+      if (!inStatic && !inFloating) {
         setCurrencyDropdownOpen(false);
       }
     };
@@ -102,9 +140,204 @@ export default function Header() {
     { name: "Cleansers & Toners", path: "/?category=Cleansers", count: "8 Items" },
   ];
 
+  const renderHeaderContent = (isFloating: boolean) => (
+    <div className="max-w-[1600px] mx-auto px-3.5 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3 sm:gap-6">
+      {/* Brand Logo */}
+      <Logo />
+
+      {/* Navigation Links */}
+      <nav className="hidden md:flex items-center gap-6 lg:gap-8">
+        {navLinks.map((link) => {
+          const isActive = location.pathname === link.path;
+          return (
+            <Link
+              key={link.path}
+              to={link.path}
+              className={`text-sm font-bold tracking-tight transition-colors py-1 border-b-2 ${
+                isActive
+                  ? "text-[#123d32] border-[#123d32]"
+                  : "text-gray-600 border-transparent hover:text-gray-900"
+              }`}
+            >
+              {link.label}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Right Header Actions */}
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+        {/* Quick Search Button */}
+        <button
+          onClick={() => setSearchOpen(!searchOpen)}
+          className="p-2 sm:p-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 transition-colors cursor-pointer"
+          title="Search formulations"
+          aria-label="Search"
+        >
+          <SearchIcon size={17} />
+        </button>
+
+        {/* Currency Selector Dropdown */}
+        <div className="relative" ref={isFloating ? floatingCurrencyRef : staticCurrencyRef}>
+          <button
+            onClick={() => setCurrencyDropdownOpen(!currencyDropdownOpen)}
+            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 text-xs font-bold text-gray-800 transition-colors cursor-pointer"
+            title="Switch Currency"
+          >
+            <span className="w-5 h-5 rounded-md bg-emerald-950 text-amber-400 font-bold flex items-center justify-center text-[10px] shrink-0">
+              {currency === "USD" ? "$" : "ETB"}
+            </span>
+            <span className="hidden sm:inline font-mono text-[11px]">{currency}</span>
+            <Icon name="chevron" size={12} className="text-gray-400" />
+          </button>
+
+          {currencyDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-200 p-2 z-50 animate-scale-up">
+              <div className="px-3 py-1.5 border-b border-gray-100 mb-1">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+                  Active Currency
+                </span>
+              </div>
+              {[
+                { code: "USD", label: "US Dollar ($)", rate: "Base Rate" },
+                { code: "ETB", label: "Ethiopian Birr (ETB)", rate: "1 USD = 130 ETB" },
+              ].map((curr) => (
+                <button
+                  key={curr.code}
+                  onClick={() => {
+                    setCurrency(curr.code as any);
+                    setCurrencyDropdownOpen(false);
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded-xl text-xs transition-colors flex items-center justify-between cursor-pointer ${
+                    currency === curr.code
+                      ? "bg-emerald-950 text-white font-bold"
+                      : "hover:bg-gray-50 text-gray-700"
+                  }`}
+                >
+                  <div>
+                    <span className="block font-bold">{curr.label}</span>
+                    <span
+                      className={`text-[9px] block ${
+                        currency === curr.code ? "text-emerald-200" : "text-gray-400"
+                      }`}
+                    >
+                      {curr.rate}
+                    </span>
+                  </div>
+                  {currency === curr.code && (
+                    <Icon name="check" size={12} className="text-amber-400" />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Wishlist Button */}
+        <button
+          onClick={openWishlist}
+          className="p-2 sm:p-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 relative transition-colors cursor-pointer"
+          title="Saved Formulations Wishlist"
+          aria-label="Wishlist"
+        >
+          <HeartIcon size={17} />
+          {wishlistCount > 0 && (
+            <span className="absolute -top-1 -right-1 w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full bg-rose-600 text-white font-black text-[9px] sm:text-[10px] flex items-center justify-center shadow-xs">
+              {wishlistCount}
+            </span>
+          )}
+        </button>
+
+        {/* Shopping Bag Button (Doqa Style) */}
+        <button
+          onClick={openCart}
+          className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 bg-[#123d32] text-white rounded-xl text-xs font-bold hover:bg-[#1a4a3e] transition-all shadow-sm relative group shrink-0 active:scale-98 cursor-pointer"
+          title="View Shopping Bag"
+        >
+          <BagIcon size={16} className="text-amber-400" />
+          <span className="hidden sm:inline">Shopping Bag</span>
+          {cartCount > 0 && (
+            <span className="px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-400 text-emerald-950 font-black text-[11px] sm:text-xs">
+              {cartCount}
+            </span>
+          )}
+        </button>
+
+        {/* Mobile Menu Trigger */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="md:hidden p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors cursor-pointer"
+          aria-label="Toggle Navigation"
+        >
+          {mobileMenuOpen ? <CloseIcon size={20} /> : <Icon name="menu" size={20} />}
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderSearchDrawer = (isFloating: boolean) => {
+    if (!searchOpen) return null;
+    return (
+      <div className="border-t border-gray-200 bg-white px-4 sm:px-8 py-3.5 shadow-md animate-fade-in">
+        <div className="max-w-[1600px] mx-auto space-y-3">
+          <div className="relative">
+            <SearchIcon size={16} className="absolute left-3.5 top-3 text-gray-400" />
+            <input
+              ref={isFloating ? floatingSearchInputRef : staticSearchInputRef}
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search botanical serums, SPF, moisturizers, cleansers..."
+              className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white outline-none focus:ring-1 focus:ring-emerald-700 text-gray-900"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3.5 top-3 text-gray-400 hover:text-gray-600 cursor-pointer"
+              >
+                <CloseIcon size={14} />
+              </button>
+            )}
+          </div>
+
+          {/* Search Suggestions dropdown */}
+          {searchResults.length > 0 && (
+            <div className="bg-white rounded-xl border border-gray-100 divide-y divide-gray-100 max-h-72 overflow-y-auto">
+              {searchResults.map((p) => (
+                <div
+                  key={p.id}
+                  onClick={() => {
+                    navigate(`/product/${p.id}`);
+                    setSearchOpen(false);
+                  }}
+                  className="p-2.5 flex items-center justify-between hover:bg-emerald-50/60 cursor-pointer transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                      <ProductImage product={p} className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <strong className="text-xs font-bold text-gray-900 block font-display">
+                        {p.name}
+                      </strong>
+                      <span className="text-[10px] text-gray-500">{p.category}</span>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-[#123d32] font-display">
+                    ${p.price.toFixed(2)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
-      {/* Top Announcement Bar */}
+      {/* Top Announcement Bar in Normal Page Flow */}
       <div className="bg-[#123d32] text-white text-[11px] font-bold py-1.5 px-4 sm:px-8 border-b border-emerald-900/40">
         <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 truncate">
@@ -126,232 +359,151 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Main Sticky Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-xs">
-        <div className="max-w-[1600px] mx-auto px-3.5 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3 sm:gap-6">
-          {/* Brand Logo */}
-          <Logo />
+      {/* Initial In-Flow Header: natural document flow, NOT fixed at the top */}
+      <header className="relative w-full bg-white/95 border-b border-gray-200">
+        {renderHeaderContent(false)}
+        {!scrolledPast && renderSearchDrawer(false)}
+      </header>
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-6 lg:gap-8">
-            {navLinks.map((link) => {
-              const isActive = location.pathname === link.path;
-              return (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`text-sm font-bold tracking-tight transition-colors py-1 border-b-2 ${
-                    isActive
-                      ? "text-[#123d32] border-[#123d32]"
-                      : "text-gray-600 border-transparent hover:text-gray-900"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
+      {/* Floating Header: smoothly slides down into view as the user scrolls down */}
+      <header
+        className={`fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-md transition-all duration-300 ease-out ${
+          scrolledPast
+            ? "translate-y-0 opacity-100 pointer-events-auto"
+            : "-translate-y-full opacity-0 pointer-events-none"
+        }`}
+        aria-hidden={!scrolledPast}
+      >
+        {renderHeaderContent(true)}
+        {scrolledPast && renderSearchDrawer(true)}
+      </header>
 
-          {/* Right Header Actions */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Quick Search Button */}
-            <button
-              onClick={() => setSearchOpen(!searchOpen)}
-              className="p-2 sm:p-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 transition-colors"
-              title="Search formulations"
-              aria-label="Search"
-            >
-              <SearchIcon size={18} />
-            </button>
+      {/* Mobile Navigation Drawer & Backdrop (Rendered once globally) */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-gray-950/50 backdrop-blur-xs animate-fade-in"
+            onClick={() => setMobileMenuOpen(false)}
+          />
 
-            {/* Currency Selector Dropdown */}
-            <div className="relative" ref={currencyRef}>
+          {/* Slide-out Drawer */}
+          <aside className="fixed inset-y-0 right-0 w-[85%] max-w-sm bg-white shadow-2xl flex flex-col z-10 animate-slide-left">
+            {/* Drawer Top Header */}
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+              <Logo />
               <button
-                onClick={() => setCurrencyDropdownOpen(!currencyDropdownOpen)}
-                className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 text-xs font-bold text-gray-800 transition-colors"
-                title="Switch Currency"
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 text-gray-500 hover:text-gray-900 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+                aria-label="Close menu"
               >
-                <span className="w-5 h-5 rounded-md bg-emerald-950 text-amber-400 font-bold flex items-center justify-center text-[10px] shrink-0">
-                  {currency === "USD" ? "$" : "ETB"}
-                </span>
-                <span className="hidden sm:inline font-mono text-[11px]">{currency}</span>
-                <Icon name="chevron" size={12} className="text-gray-400" />
+                <CloseIcon size={20} />
               </button>
+            </div>
 
-              {currencyDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-200 p-2 z-50 animate-scale-up">
-                  <div className="px-3 py-1.5 border-b border-gray-100 mb-1">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                      Active Currency
-                    </span>
-                  </div>
+            {/* Drawer Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-6">
+              {/* Main Navigation Links */}
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-2 px-1">
+                  Navigation
+                </span>
+                {navLinks.map((link) => {
+                  const isActive = location.pathname === link.path;
+                  return (
+                    <Link
+                      key={link.path}
+                      to={link.path}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center justify-between p-3 rounded-xl text-sm font-bold transition-all ${
+                        isActive
+                          ? "bg-[#123d32] text-amber-300 shadow-sm"
+                          : "text-gray-800 hover:bg-gray-50"
+                      }`}
+                    >
+                      <span>{link.label}</span>
+                      <span className={`text-xs ${isActive ? "text-amber-300" : "text-gray-400"}`}>→</span>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {/* Special Offers Banner */}
+              <Link
+                to="/discount"
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-3.5 rounded-2xl bg-gradient-to-r from-rose-950 to-rose-900 text-white flex items-center justify-between shadow-md block"
+              >
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-rose-300 block">
+                    Limited Sets
+                  </span>
+                  <strong className="text-xs font-bold font-display block">Special Deals & Offers</strong>
+                  <span className="text-[11px] text-rose-200">Save up to 30% today</span>
+                </div>
+                <span className="px-2.5 py-1 rounded-full bg-rose-600 text-white font-black text-xs">
+                  30% OFF
+                </span>
+              </Link>
+
+              {/* Popular Categories */}
+              <div className="space-y-2">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block px-1">
+                  Botanical Formulations
+                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  {featuredCategories.map((c) => (
+                    <Link
+                      key={c.name}
+                      to={c.path}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="p-2.5 rounded-xl bg-gray-50 border border-gray-100 text-xs font-bold text-gray-700 hover:bg-emerald-50 hover:text-emerald-950 transition-colors"
+                    >
+                      <span className="block truncate">{c.name}</span>
+                      <span className="text-[10px] text-gray-400 font-normal">{c.count}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Currency Switcher in Mobile Drawer */}
+              <div className="space-y-2 pt-2 border-t border-gray-100">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block px-1">
+                  Currency Preference
+                </span>
+                <div className="grid grid-cols-2 gap-2">
                   {[
-                    { code: "USD", label: "US Dollar ($)", rate: "Base Rate" },
-                    { code: "ETB", label: "Ethiopian Birr (ETB)", rate: "1 USD = 130 ETB" },
+                    { code: "USD", label: "USD ($)" },
+                    { code: "ETB", label: "ETB (Birr)" },
                   ].map((curr) => (
                     <button
                       key={curr.code}
                       onClick={() => {
                         setCurrency(curr.code as any);
-                        setCurrencyDropdownOpen(false);
+                        setMobileMenuOpen(false);
                       }}
-                      className={`w-full text-left px-3 py-2 rounded-xl text-xs transition-colors flex items-center justify-between ${
+                      className={`p-2.5 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                         currency === curr.code
-                          ? "bg-emerald-950 text-white font-bold"
-                          : "hover:bg-gray-50 text-gray-700"
+                          ? "bg-emerald-950 text-amber-300 border-emerald-950 shadow-2xs"
+                          : "bg-gray-50 text-gray-700 border-gray-200"
                       }`}
                     >
-                      <div>
-                        <span className="block font-bold">{curr.label}</span>
-                        <span
-                          className={`text-[9px] block ${
-                            currency === curr.code ? "text-emerald-200" : "text-gray-400"
-                          }`}
-                        >
-                          {curr.rate}
-                        </span>
-                      </div>
-                      {currency === curr.code && (
-                        <Icon name="check" size={12} className="text-amber-400" />
-                      )}
+                      <span>{curr.label}</span>
+                      {currency === curr.code && <span>✓</span>}
                     </button>
                   ))}
                 </div>
-              )}
+              </div>
             </div>
 
-            {/* Wishlist Button */}
-            <button
-              onClick={openWishlist}
-              className="p-2 sm:p-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 relative transition-colors"
-              title="Saved Formulations Wishlist"
-              aria-label="Wishlist"
-            >
-              <HeartIcon size={18} />
-              {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-rose-600 text-white font-black text-[10px] flex items-center justify-center shadow-xs">
-                  {wishlistCount}
-                </span>
-              )}
-            </button>
-
-            {/* Shopping Bag Button (Doqa Style) */}
-            <button
-              onClick={openCart}
-              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-[#123d32] text-white rounded-xl text-xs font-bold hover:bg-[#1a4a3e] transition-all shadow-sm relative group shrink-0 active:scale-98"
-              title="View Shopping Bag"
-            >
-              <BagIcon size={16} className="text-amber-400" />
-              <span className="hidden sm:inline">Shopping Bag</span>
-              {cartCount > 0 && (
-                <span className="px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-400 text-emerald-950 font-black text-xs">
-                  {cartCount}
-                </span>
-              )}
-            </button>
-
-            {/* Mobile Menu Trigger */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl"
-              aria-label="Toggle Navigation"
-            >
-              {mobileMenuOpen ? <CloseIcon size={20} /> : <Icon name="menu" size={20} />}
-            </button>
-          </div>
+            {/* Drawer Footer Guarantees */}
+            <div className="p-4 bg-gray-50 border-t border-gray-100 text-[11px] text-gray-500 font-medium space-y-1">
+              <p>🌿 100% Certified Vegan & Organic</p>
+              <p>🚚 Free Botanical Express Delivery &gt; $60</p>
+            </div>
+          </aside>
         </div>
-
-        {/* Live Search Drawer / Flyout */}
-        {searchOpen && (
-          <div className="border-t border-gray-200 bg-white px-4 sm:px-8 py-3.5 shadow-md animate-fade-in">
-            <div className="max-w-[1600px] mx-auto space-y-3">
-              <div className="relative">
-                <SearchIcon size={16} className="absolute left-3.5 top-3 text-gray-400" />
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search botanical serums, SPF, moisturizers, cleansers..."
-                  className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white outline-none focus:ring-1 focus:ring-emerald-700 text-gray-900"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-3.5 top-3 text-gray-400 hover:text-gray-600"
-                  >
-                    <CloseIcon size={14} />
-                  </button>
-                )}
-              </div>
-
-              {/* Search Suggestions dropdown */}
-              {searchResults.length > 0 && (
-                <div className="bg-white rounded-xl border border-gray-100 divide-y divide-gray-100 max-h-72 overflow-y-auto">
-                  {searchResults.map((p) => (
-                    <div
-                      key={p.id}
-                      onClick={() => {
-                        navigate(`/product/${p.id}`);
-                        setSearchOpen(false);
-                      }}
-                      className="p-2.5 flex items-center justify-between hover:bg-emerald-50/60 cursor-pointer transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-                          <ProductImage product={p} className="w-full h-full object-cover" />
-                        </div>
-                        <div>
-                          <strong className="text-xs font-bold text-gray-900 block font-display">
-                            {p.name}
-                          </strong>
-                          <span className="text-[10px] text-gray-500">{p.category}</span>
-                        </div>
-                      </div>
-                      <span className="text-xs font-bold text-[#123d32] font-display">
-                        ${p.price.toFixed(2)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Mobile Navigation Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-100 px-4 py-4 bg-white space-y-3 animate-fade-in shadow-xl">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 text-sm font-bold text-gray-800 hover:text-emerald-950 border-b border-gray-50"
-              >
-                {link.label}
-              </Link>
-            ))}
-            <div className="pt-2">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-2">
-                Popular Categories
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                {featuredCategories.map((c) => (
-                  <Link
-                    key={c.name}
-                    to={c.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="p-2 rounded-lg bg-gray-50 text-[11px] font-semibold text-gray-700 hover:bg-emerald-50"
-                  >
-                    {c.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      </header>
+      )}
     </>
   );
 }

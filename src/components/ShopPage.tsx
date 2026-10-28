@@ -79,6 +79,18 @@ export default function ShopPage() {
   const { isOpen: mobileFilters, open: openMobileFilters, close: closeMobileFilters } = useMobileFilters();
   const { addToCart } = useCart();
 
+  // Lock body scroll when mobile filters are open
+  useEffect(() => {
+    if (mobileFilters) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileFilters]);
+
   // Read URL params
   useEffect(() => {
     const cat = searchParams.get("category");
@@ -311,27 +323,43 @@ export default function ShopPage() {
         <div className="layout-side-by-side flex flex-col md:flex-row gap-6 lg:gap-8 items-start w-full">
           {/* Left Filter Sidebar (Always side-by-side on desktop) */}
           <aside
-            className={`layout-sidebar w-full md:w-64 lg:w-72 xl:w-80 shrink-0 md:sticky md:top-24 z-10 ${
+            className={`layout-sidebar w-full md:w-64 lg:w-72 xl:w-80 shrink-0 md:sticky md:top-24 z-30 ${
               mobileFilters
-                ? "fixed inset-0 z-50 p-6 bg-white overflow-y-auto block"
+                ? "fixed inset-0 z-50 p-4 sm:p-6 bg-white overflow-y-auto block"
                 : "hidden md:block"
             }`}
           >
             {mobileFilters && (
-              <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-200 md:hidden">
-                <strong className="text-base font-bold text-gray-900 font-display">
-                  Filter Formulations
-                </strong>
-                <button
-                  onClick={closeMobileFilters}
-                  className="p-1.5 text-gray-400 hover:text-gray-700"
-                >
-                  <CloseIcon size={20} />
-                </button>
+              <div className="sticky top-0 -m-4 sm:-m-6 mb-4 p-4 sm:p-5 bg-white/95 backdrop-blur-md border-b border-gray-200 flex items-center justify-between z-20 md:hidden shadow-xs">
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800">
+                    ODILIA FILTERS
+                  </span>
+                  <strong className="text-base font-bold text-gray-900 block font-display">
+                    Filter Formulations
+                  </strong>
+                </div>
+                <div className="flex items-center gap-2">
+                  {activeFiltersCount > 0 && (
+                    <button
+                      onClick={resetAll}
+                      className="px-2.5 py-1 bg-amber-50 text-amber-900 border border-amber-200 rounded-lg text-xs font-bold"
+                    >
+                      Reset ({activeFiltersCount})
+                    </button>
+                  )}
+                  <button
+                    onClick={closeMobileFilters}
+                    className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-xl"
+                    aria-label="Close filters"
+                  >
+                    <CloseIcon size={20} />
+                  </button>
+                </div>
               </div>
             )}
 
-            <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-2xs space-y-6">
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-2xs space-y-6">
               <div className="flex items-center justify-between pb-3 border-b border-gray-100">
                 <span className="text-xs font-bold uppercase tracking-wider text-gray-900">
                   Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
@@ -534,12 +562,17 @@ export default function ShopPage() {
               </div>
 
               {mobileFilters && (
-                <button
-                  onClick={closeMobileFilters}
-                  className="w-full py-2.5 bg-emerald-950 text-white rounded-xl text-xs font-bold shadow-md"
-                >
-                  Apply Filters
-                </button>
+                <div className="sticky bottom-0 -m-4 sm:-m-5 mt-4 p-4 sm:p-5 bg-white/95 backdrop-blur-md border-t border-gray-200 z-20 md:hidden shadow-lg">
+                  <button
+                    onClick={closeMobileFilters}
+                    className="w-full py-3 bg-[#123d32] text-white rounded-xl text-xs font-bold shadow-md hover:bg-[#1a4a3e] active:scale-98 transition-all flex items-center justify-center gap-2"
+                  >
+                    <span>Apply Filters</span>
+                    <span className="px-2 py-0.5 rounded-full bg-amber-400 text-emerald-950 font-black text-[11px]">
+                      {sorted.length} Formulations
+                    </span>
+                  </button>
+                </div>
               )}
             </div>
           </aside>
@@ -569,7 +602,7 @@ export default function ShopPage() {
 
             {/* Active Category Banner if filtered */}
             {filters.categories.length > 0 && (
-              <div className="bg-emerald-50 border border-emerald-200/80 rounded-2xl p-4 flex items-center justify-between">
+              <div className="bg-emerald-50 border border-emerald-200/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 block">
                     Category Filter
@@ -583,7 +616,7 @@ export default function ShopPage() {
                 </div>
                 <button
                   onClick={() => setFilters((f) => ({ ...f, categories: [] }))}
-                  className="px-3 py-1.5 bg-white border border-emerald-300 text-emerald-900 rounded-xl text-xs font-bold hover:bg-emerald-100 transition-colors"
+                  className="px-3 py-1.5 bg-white border border-emerald-300 text-emerald-900 rounded-xl text-xs font-bold hover:bg-emerald-100 transition-colors self-start sm:self-auto"
                 >
                   View all categories
                 </button>
@@ -591,11 +624,11 @@ export default function ShopPage() {
             )}
 
             {/* Toolbar (Doqa Style) */}
-            <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex items-center gap-3">
+            <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-gray-200 shadow-2xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+              <div className="flex items-center justify-between sm:justify-start gap-3 w-full sm:w-auto">
                 <button
                   onClick={openMobileFilters}
-                  className="md:hidden px-3 py-1.5 bg-gray-100 text-gray-800 rounded-xl text-xs font-bold flex items-center gap-1.5"
+                  className="md:hidden px-3 py-2 bg-[#123d32] text-amber-300 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs active:scale-98"
                 >
                   <FilterIcon size={14} />
                   <span>Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}</span>
@@ -607,9 +640,9 @@ export default function ShopPage() {
                 </span>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto">
                 {/* View Switcher */}
-                <div className="flex items-center border border-gray-200 rounded-xl bg-gray-50 p-0.5">
+                <div className="flex items-center border border-gray-200 rounded-xl bg-gray-50 p-0.5 shrink-0">
                   <button
                     onClick={() => setIsListView(false)}
                     className={`p-1.5 rounded-lg transition-colors ${
@@ -633,15 +666,14 @@ export default function ShopPage() {
                 </div>
 
                 {/* Sort Dropdown */}
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-gray-500 whitespace-nowrap">Sort:</label>
+                <div className="flex items-center gap-1.5 flex-1 sm:flex-initial justify-end">
                   <select
                     value={sort}
                     onChange={(e) => {
                       setSort(e.target.value as any);
                       setPage(1);
                     }}
-                    className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-gray-900 outline-none focus:ring-1 focus:ring-emerald-700"
+                    className="w-full sm:w-auto bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-gray-900 outline-none focus:ring-1 focus:ring-emerald-700"
                   >
                     <option value="default">Featured Formulations</option>
                     <option value="popularity">Most Popular</option>
@@ -686,7 +718,7 @@ export default function ShopPage() {
                 ))}
               </ul>
             ) : (
-              <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                 {paged.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -700,31 +732,33 @@ export default function ShopPage() {
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 pt-4">
+              <div className="flex items-center justify-center gap-1.5 sm:gap-2 pt-4 flex-wrap">
                 <button
                   disabled={safePage === 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="p-2 border border-gray-200 rounded-xl bg-white text-xs font-bold disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50"
+                  className="px-3 py-1.5 border border-gray-200 rounded-xl bg-white text-xs font-bold disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 active:scale-98 transition-all"
                 >
                   ← Prev
                 </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => setPage(n)}
-                    className={`w-8 h-8 rounded-xl text-xs font-bold transition-all ${
-                      n === safePage
-                        ? "bg-[#123d32] text-white shadow-xs"
-                        : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
-                    }`}
-                  >
-                    {n}
-                  </button>
-                ))}
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                    <button
+                      key={n}
+                      onClick={() => setPage(n)}
+                      className={`w-8 h-8 rounded-xl text-xs font-bold transition-all ${
+                        n === safePage
+                          ? "bg-[#123d32] text-amber-300 shadow-xs"
+                          : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
                 <button
                   disabled={safePage === totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="p-2 border border-gray-200 rounded-xl bg-white text-xs font-bold disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50"
+                  className="px-3 py-1.5 border border-gray-200 rounded-xl bg-white text-xs font-bold disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 active:scale-98 transition-all"
                 >
                   Next →
                 </button>

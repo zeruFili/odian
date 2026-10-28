@@ -30,7 +30,7 @@ export default function App() {
           <ToastProvider>
             <MobileFiltersProvider>
               <BrowserRouter basename={import.meta.env.BASE_URL}>
-                <div className="min-h-screen bg-[#f8faf7] text-[#18352b] flex flex-col font-sans antialiased">
+                <div className="min-h-screen bg-[#f8faf7] text-[#18352b] flex flex-col font-sans antialiased overflow-x-hidden w-full">
                   <ScrollToTop />
 
                   {/* Modern Navigation Header */}

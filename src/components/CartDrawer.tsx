@@ -64,8 +64,8 @@ export default function CartDrawer() {
       />
 
       {/* Slide-out Drawer Panel (Doqa Style) */}
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <aside className="w-screen max-w-md bg-white shadow-2xl flex flex-col animate-slide-left border-l border-gray-200">
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
+        <aside className="w-full sm:w-screen sm:max-w-md bg-white shadow-2xl flex flex-col animate-slide-left border-l border-gray-200">
           {/* Drawer Header */}
           <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
             <div>

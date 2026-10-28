@@ -281,13 +281,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               type="button"
               data-no-navigate="true"
               onClick={handleWishlist}
-              className={`w-7 h-7 rounded-full bg-white/90 backdrop-blur-xs border border-gray-200 flex items-center justify-center shadow-xs transition-colors hover:scale-105 cursor-pointer ${
+              className={`w-8 h-8 rounded-full bg-white/95 backdrop-blur-xs border border-gray-200 flex items-center justify-center shadow-xs transition-colors hover:scale-105 active:scale-95 cursor-pointer ${
                 isWish ? "text-rose-600 bg-rose-50 border-rose-200" : "text-gray-500 hover:text-rose-600"
               }`}
               title={isWish ? "Remove from wishlist" : "Add to wishlist"}
               aria-label="Wishlist"
             >
-              <HeartIcon size={13} filled={isWish} />
+              <HeartIcon size={14} filled={isWish} />
             </button>
           </div>
 

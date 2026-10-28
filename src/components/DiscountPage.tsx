@@ -30,6 +30,18 @@ export default function DiscountPage() {
   const [isListView, setIsListView] = useState<boolean>(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
+  // Lock body scroll when mobile filters are open
+  useEffect(() => {
+    if (mobileFilters) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileFilters]);
+
   // Discount percentage helper
   const getDiscountPercent = (p: Product) => {
     if (!p.compareAtPrice || p.compareAtPrice <= p.price) return 0;
@@ -192,27 +204,43 @@ export default function DiscountPage() {
         <div className="layout-side-by-side flex flex-col md:flex-row gap-6 lg:gap-8 items-start w-full">
           {/* Left Filter Sidebar (Always side-by-side on desktop) */}
           <aside
-            className={`layout-sidebar w-full md:w-64 lg:w-72 xl:w-80 shrink-0 md:sticky md:top-24 z-10 ${
+            className={`layout-sidebar w-full md:w-64 lg:w-72 xl:w-80 shrink-0 md:sticky md:top-24 z-30 ${
               mobileFilters
-                ? "fixed inset-0 z-50 p-6 bg-white overflow-y-auto block"
+                ? "fixed inset-0 z-50 p-4 sm:p-6 bg-white overflow-y-auto block animate-fade-in"
                 : "hidden md:block"
             }`}
           >
             {mobileFilters && (
-              <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-200 md:hidden">
-                <strong className="text-base font-bold text-gray-900 font-display">
-                  Filter Deals
-                </strong>
-                <button
-                  onClick={closeMobileFilters}
-                  className="p-1.5 text-gray-400 hover:text-gray-700"
-                >
-                  <CloseIcon size={20} />
-                </button>
+              <div className="sticky top-0 -m-4 sm:-m-6 mb-4 p-4 sm:p-5 bg-white/95 backdrop-blur-md border-b border-gray-200 flex items-center justify-between z-20 md:hidden shadow-xs">
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-rose-700">
+                    SPECIAL OFFERS
+                  </span>
+                  <strong className="text-base font-bold text-gray-900 block font-display">
+                    Filter Promotions
+                  </strong>
+                </div>
+                <div className="flex items-center gap-2">
+                  {isFiltered && (
+                    <button
+                      onClick={resetFilters}
+                      className="px-2.5 py-1 bg-rose-50 text-rose-800 border border-rose-200 rounded-lg text-xs font-bold"
+                    >
+                      Reset
+                    </button>
+                  )}
+                  <button
+                    onClick={closeMobileFilters}
+                    className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-xl"
+                    aria-label="Close filters"
+                  >
+                    <CloseIcon size={20} />
+                  </button>
+                </div>
               </div>
             )}
 
-            <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-2xs space-y-6">
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-2xs space-y-6">
               <div className="flex items-center justify-between pb-3 border-b border-gray-100">
                 <span className="text-xs font-bold uppercase tracking-wider text-gray-900">
                   Deal Filters
@@ -463,12 +491,17 @@ export default function DiscountPage() {
               </div>
 
               {mobileFilters && (
-                <button
-                  onClick={closeMobileFilters}
-                  className="w-full py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-rose-700"
-                >
-                  Apply Deal Filters
-                </button>
+                <div className="sticky bottom-0 -m-4 sm:-m-5 mt-4 p-4 sm:p-5 bg-white/95 backdrop-blur-md border-t border-gray-200 z-20 md:hidden shadow-lg">
+                  <button
+                    onClick={closeMobileFilters}
+                    className="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-md active:scale-98 transition-all flex items-center justify-center gap-2"
+                  >
+                    <span>Apply Deal Filters</span>
+                    <span className="px-2 py-0.5 rounded-full bg-white/20 text-white font-black text-[11px]">
+                      {sortedDeals.length} Offers
+                    </span>
+                  </button>
+                </div>
               )}
             </div>
           </aside>
@@ -503,7 +536,7 @@ export default function DiscountPage() {
 
             {/* Active Filters Banner */}
             {isFiltered && (
-              <div className="bg-rose-50 border border-rose-200/80 rounded-2xl p-4 flex items-center justify-between">
+              <div className="bg-rose-50 border border-rose-200/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-rose-800 block">
                     Active Discount Filter
@@ -520,7 +553,7 @@ export default function DiscountPage() {
                 </div>
                 <button
                   onClick={resetFilters}
-                  className="px-3 py-1.5 bg-white border border-rose-300 text-rose-900 rounded-xl text-xs font-bold hover:bg-rose-100 transition-colors"
+                  className="px-3 py-1.5 bg-white border border-rose-300 text-rose-900 rounded-xl text-xs font-bold hover:bg-rose-100 transition-colors self-start sm:self-auto"
                 >
                   Clear filters
                 </button>
@@ -528,25 +561,25 @@ export default function DiscountPage() {
             )}
 
             {/* Toolbar (Doqa Style) */}
-            <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex items-center gap-3">
+            <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-gray-200 shadow-2xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+              <div className="flex items-center justify-between sm:justify-start gap-3 w-full sm:w-auto">
                 <button
                   onClick={openMobileFilters}
-                  className="md:hidden px-3 py-1.5 bg-gray-100 text-gray-800 rounded-xl text-xs font-bold flex items-center gap-1.5"
+                  className="md:hidden px-3 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs active:scale-98"
                 >
                   <FilterIcon size={14} />
-                  <span>Filters</span>
+                  <span>Filters {isFiltered && "(Active)"}</span>
                 </button>
 
                 <span className="text-xs font-semibold text-gray-500">
                   Showing <strong className="text-gray-900">{pagedDeals.length}</strong> of{" "}
-                  <strong className="text-gray-900">{sortedDeals.length}</strong> promotional deals
+                  <strong className="text-gray-900">{sortedDeals.length}</strong> deals
                 </span>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto">
                 {/* View Switcher */}
-                <div className="flex items-center border border-gray-200 rounded-xl bg-gray-50 p-0.5">
+                <div className="flex items-center border border-gray-200 rounded-xl bg-gray-50 p-0.5 shrink-0">
                   <button
                     onClick={() => setIsListView(false)}
                     className={`p-1.5 rounded-lg transition-colors ${
@@ -568,15 +601,14 @@ export default function DiscountPage() {
                 </div>
 
                 {/* Sort Dropdown */}
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-gray-500 whitespace-nowrap">Sort:</label>
+                <div className="flex items-center gap-1.5 flex-1 sm:flex-initial justify-end">
                   <select
                     value={sortKey}
                     onChange={(e) => {
                       setSortKey(e.target.value as any);
                       setPage(1);
                     }}
-                    className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-gray-900 outline-none focus:ring-1 focus:ring-rose-600"
+                    className="w-full sm:w-auto bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-gray-900 outline-none focus:ring-1 focus:ring-rose-600"
                   >
                     <option value="discount-desc">Highest Discount %</option>
                     <option value="savings-desc">Biggest Savings</option>
@@ -619,7 +651,7 @@ export default function DiscountPage() {
                 ))}
               </ul>
             ) : (
-              <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                 {pagedDeals.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -633,31 +665,33 @@ export default function DiscountPage() {
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 pt-4">
+              <div className="flex items-center justify-center gap-1.5 sm:gap-2 pt-4 flex-wrap">
                 <button
                   disabled={safePage === 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="p-2 border border-gray-200 rounded-xl bg-white text-xs font-bold disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50"
+                  className="px-3 py-1.5 border border-gray-200 rounded-xl bg-white text-xs font-bold disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 active:scale-98 transition-all"
                 >
                   ← Prev
                 </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => setPage(n)}
-                    className={`w-8 h-8 rounded-xl text-xs font-bold transition-all ${
-                      n === safePage
-                        ? "bg-[#123d32] text-white shadow-xs"
-                        : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
-                    }`}
-                  >
-                    {n}
-                  </button>
-                ))}
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                    <button
+                      key={n}
+                      onClick={() => setPage(n)}
+                      className={`w-8 h-8 rounded-xl text-xs font-bold transition-all ${
+                        n === safePage
+                          ? "bg-rose-600 text-white shadow-xs"
+                          : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
                 <button
                   disabled={safePage === totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="p-2 border border-gray-200 rounded-xl bg-white text-xs font-bold disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50"
+                  className="px-3 py-1.5 border border-gray-200 rounded-xl bg-white text-xs font-bold disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 active:scale-98 transition-all"
                 >
                   Next →
                 </button>
