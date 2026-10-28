@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { onSaleProducts, priceInUsd, CATEGORIES, SKIN_TYPES, type Product } from "../data/products";
 import { useCart } from "../store/cart";
+import { useCurrency } from "../store/currency";
 import { useMobileFilters } from "../store/filters";
 import ProductCard from "./ProductCard";
 import QuickViewModal from "./QuickViewModal";
@@ -9,10 +10,12 @@ import Footer from "./Footer";
 import Icon, { CloseIcon, FilterIcon, GridViewIcon, ListViewIcon } from "./Icons";
 
 const PAGE_SIZE = 12;
+const PRICE_MAX = 200;
 
 type SortKey = "discount-desc" | "savings-desc" | "price-asc" | "price-desc";
 
 export default function DiscountPage() {
+  const { format } = useCurrency();
   const { addToCart } = useCart();
   const { isOpen: mobileFilters, open: openMobileFilters, close: closeMobileFilters } = useMobileFilters();
 
@@ -20,6 +23,7 @@ export default function DiscountPage() {
   const [selectedTier, setSelectedTier] = useState<string>("All");
   const [selectedSkinType, setSelectedSkinType] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<number>(PRICE_MAX);
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const [sortKey, setSortKey] = useState<SortKey>("discount-desc");
   const [page, setPage] = useState<number>(1);
@@ -69,6 +73,11 @@ export default function DiscountPage() {
         return false;
       }
 
+      // Max Price filter
+      if (priceInUsd(p) > maxPrice) {
+        return false;
+      }
+
       // In stock
       if (inStockOnly && p.type === "outofstock") return false;
 
@@ -85,7 +94,7 @@ export default function DiscountPage() {
 
       return true;
     });
-  }, [selectedCategory, selectedTier, selectedSkinType, inStockOnly, searchQuery]);
+  }, [selectedCategory, selectedTier, selectedSkinType, inStockOnly, searchQuery, maxPrice]);
 
   // Sorted deals
   const sortedDeals = useMemo(() => {
@@ -115,6 +124,7 @@ export default function DiscountPage() {
     setSelectedTier("All");
     setSelectedSkinType("All");
     setSearchQuery("");
+    setMaxPrice(PRICE_MAX);
     setInStockOnly(false);
     setSortKey("discount-desc");
     setPage(1);
@@ -125,6 +135,7 @@ export default function DiscountPage() {
     selectedTier !== "All" ||
     selectedSkinType !== "All" ||
     searchQuery.trim() !== "" ||
+    maxPrice < PRICE_MAX ||
     inStockOnly;
 
   return (
@@ -231,6 +242,70 @@ export default function DiscountPage() {
                     placeholder="Search discounted items..."
                     className="w-full pl-8 pr-3 py-2 text-xs border border-gray-200 rounded-xl bg-gray-50 focus:bg-white outline-none focus:ring-1 focus:ring-rose-600 text-gray-900"
                   />
+                </div>
+              </div>
+
+              {/* Prominent Price Filter (Doqa Style) */}
+              <div className="space-y-3 pt-3 border-t border-gray-100 bg-rose-50/50 p-3 rounded-xl border border-rose-900/10">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <Icon name="tag" size={13} className="text-rose-700" />
+                    <label className="text-xs font-bold text-gray-900 block">
+                      Price Range
+                    </label>
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full bg-rose-600 text-white font-mono text-xs font-bold shadow-xs">
+                    Up to {format(maxPrice)}
+                  </span>
+                </div>
+
+                <div className="space-y-1">
+                  <input
+                    type="range"
+                    min={10}
+                    max={PRICE_MAX}
+                    step={5}
+                    value={maxPrice}
+                    onChange={(e) => {
+                      setMaxPrice(Number(e.target.value));
+                      setPage(1);
+                    }}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-rose-600"
+                    aria-label="Filter by maximum price"
+                  />
+                  <div className="flex items-center justify-between text-[10px] font-bold text-gray-500 font-mono">
+                    <span>{format(10)}</span>
+                    <span>{format(PRICE_MAX)}</span>
+                  </div>
+                </div>
+
+                {/* Quick Price Preset Buttons */}
+                <div className="grid grid-cols-4 gap-1 pt-0.5">
+                  {[
+                    { label: "All", max: PRICE_MAX },
+                    { label: "< $35", max: 35 },
+                    { label: "< $60", max: 60 },
+                    { label: "< $100", max: 100 },
+                  ].map((p) => {
+                    const isSelected = maxPrice === p.max;
+                    return (
+                      <button
+                        key={p.label}
+                        type="button"
+                        onClick={() => {
+                          setMaxPrice(p.max);
+                          setPage(1);
+                        }}
+                        className={`py-1 px-1 text-[10px] font-bold rounded-lg border text-center transition-all ${
+                          isSelected
+                            ? "bg-rose-600 text-white border-rose-600 shadow-2xs"
+                            : "bg-white hover:bg-gray-100 text-gray-700 border-gray-200"
+                        }`}
+                      >
+                        {p.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

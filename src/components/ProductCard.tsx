@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { Product } from "../data/products";
 import { useCurrency } from "../store/currency";
 import { useWishlist } from "../store/wishlist";
@@ -22,6 +22,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onQuickView,
   listView = false,
 }) => {
+  const navigate = useNavigate();
   const { format } = useCurrency();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const { openCart } = useCart();
@@ -38,6 +39,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     : 0;
 
   const savingsAmount = hasDiscount && product.compareAtPrice ? product.compareAtPrice - product.price : 0;
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    // Don't navigate if user clicked an interactive button or element marked with data-no-navigate
+    if (target.closest("button") || target.closest("[data-no-navigate]")) {
+      return;
+    }
+    // If user clicked directly on or inside a link, let React Router Link handle it
+    if (target.closest("a")) {
+      return;
+    }
+    navigate(`/product/${product.id}`);
+  };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -78,7 +92,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   if (listView) {
     return (
       <li className="list-none">
-        <article className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col sm:flex-row p-4 gap-4 sm:gap-6 group">
+        <article
+          onClick={handleCardClick}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !(e.target as HTMLElement).closest("button")) {
+              navigate(`/product/${product.id}`);
+            }
+          }}
+          tabIndex={0}
+          role="article"
+          aria-label={product.name}
+          className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col sm:flex-row p-4 gap-4 sm:gap-6 group cursor-pointer"
+        >
           <Link
             to={`/product/${product.id}`}
             className="relative w-full sm:w-48 aspect-square rounded-xl bg-gray-50 overflow-hidden shrink-0 block"
@@ -153,21 +178,38 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
               <div className="flex items-center gap-2">
                 <button
+                  type="button"
+                  data-no-navigate="true"
                   onClick={handleWishlist}
                   className={`p-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors ${
                     isWish ? "text-rose-600 bg-rose-50 border-rose-200" : "text-gray-600"
                   }`}
                   title="Save to Wishlist"
+                  aria-label="Wishlist"
                 >
                   <HeartIcon size={16} filled={isWish} />
                 </button>
                 <button
+                  type="button"
+                  data-no-navigate="true"
                   disabled={isOutOfStock}
                   onClick={handleAddToCart}
-                  className="px-4 py-2.5 bg-[#123d32] hover:bg-[#1a4a3e] text-white rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-2 disabled:opacity-40"
+                  className={`px-4 py-2.5 text-white rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-2 disabled:opacity-40 active:scale-98 ${
+                    hasDiscount
+                      ? "bg-rose-600 hover:bg-rose-700"
+                      : "bg-[#123d32] hover:bg-[#1a4a3e]"
+                  }`}
                 >
-                  <BagIcon size={14} className="text-amber-400" />
-                  <span>{added ? "Added!" : isOutOfStock ? "Sold Out" : "Add to Bag"}</span>
+                  <BagIcon size={14} className={hasDiscount ? "text-white" : "text-amber-400"} />
+                  <span>
+                    {added
+                      ? "Added!"
+                      : isOutOfStock
+                      ? "Sold Out"
+                      : hasDiscount
+                      ? "Claim Special Offer"
+                      : "Add to Bag"}
+                  </span>
                 </button>
               </div>
             </div>
@@ -179,7 +221,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <li className="list-none">
-      <article className="h-full bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-2xs hover:shadow-xl hover:border-emerald-950/20 transition-all duration-300 flex flex-col group">
+      <article
+        onClick={handleCardClick}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !(e.target as HTMLElement).closest("button")) {
+            navigate(`/product/${product.id}`);
+          }
+        }}
+        tabIndex={0}
+        role="article"
+        aria-label={product.name}
+        className="h-full bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-2xs hover:shadow-xl hover:border-emerald-950/20 transition-all duration-300 flex flex-col group cursor-pointer"
+      >
         {/* Media Thumbnail with Badges */}
         <div className="relative aspect-4/3 bg-gray-50 overflow-hidden block">
           <Link
@@ -225,8 +278,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </Badge>
 
             <button
+              type="button"
+              data-no-navigate="true"
               onClick={handleWishlist}
-              className={`w-7 h-7 rounded-full bg-white/90 backdrop-blur-xs border border-gray-200 flex items-center justify-center shadow-xs transition-colors hover:scale-105 ${
+              className={`w-7 h-7 rounded-full bg-white/90 backdrop-blur-xs border border-gray-200 flex items-center justify-center shadow-xs transition-colors hover:scale-105 cursor-pointer ${
                 isWish ? "text-rose-600 bg-rose-50 border-rose-200" : "text-gray-500 hover:text-rose-600"
               }`}
               title={isWish ? "Remove from wishlist" : "Add to wishlist"}
@@ -245,8 +300,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
             {onQuickView && (
               <button
+                type="button"
+                data-no-navigate="true"
                 onClick={handleQuickView}
-                className="text-[9px] font-bold bg-white text-gray-800 px-2 py-0.5 rounded-md shadow-xs hover:bg-emerald-950 hover:text-white transition-colors flex items-center gap-1 shrink-0"
+                className="text-[9px] font-bold bg-white text-gray-800 px-2 py-0.5 rounded-md shadow-xs hover:bg-emerald-950 hover:text-white transition-colors flex items-center gap-1 shrink-0 cursor-pointer"
                 title="Quick View"
               >
                 <EyeIcon size={11} />
@@ -352,14 +409,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {/* Direct Add to Bag CTA Button (Doqa Style) */}
             <div className="pt-0.5">
               <button
+                type="button"
+                data-no-navigate="true"
                 disabled={isOutOfStock}
                 onClick={handleAddToCart}
-                className={`w-full py-2.5 px-3 text-white rounded-xl text-xs font-bold active:scale-98 transition-all shadow-2xs disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                className={`w-full py-2.5 px-3 text-white rounded-xl text-xs font-bold active:scale-98 transition-all shadow-2xs disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 ${
                   hasDiscount
                     ? "bg-rose-600 hover:bg-rose-700 shadow-rose-900/10"
                     : "bg-[#123d32] hover:bg-[#1a4a3e]"
                 }`}
-                title="Add product to shopping bag"
+                title={hasDiscount ? "Claim Special Offer" : "Add to Bag"}
               >
                 {added ? (
                   <>

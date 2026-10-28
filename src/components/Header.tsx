@@ -48,7 +48,6 @@ export default function Header() {
   const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [megaMenuOpen, setMegaMenuOpen] = useState(false);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const currencyRef = useRef<HTMLDivElement>(null);
@@ -57,7 +56,6 @@ export default function Header() {
   useEffect(() => {
     setMobileMenuOpen(false);
     setSearchOpen(false);
-    setMegaMenuOpen(false);
     setCurrencyDropdownOpen(false);
   }, [location.pathname]);
 
@@ -152,56 +150,6 @@ export default function Header() {
                 </Link>
               );
             })}
-
-            {/* Rituals & Categories Dropdown Trigger */}
-            <div
-              className="relative"
-              onMouseEnter={() => setMegaMenuOpen(true)}
-              onMouseLeave={() => setMegaMenuOpen(false)}
-            >
-              <button
-                className={`text-sm font-bold tracking-tight transition-colors py-1 flex items-center gap-1.5 ${
-                  megaMenuOpen ? "text-[#123d32]" : "text-gray-600 hover:text-gray-900"
-                }`}
-              >
-                <span>Rituals & Care</span>
-                <ChevronDownIcon size={14} className="text-gray-400" />
-              </button>
-
-              {/* Mega Dropdown */}
-              {megaMenuOpen && (
-                <div className="absolute left-0 top-full pt-2 w-80 z-50 animate-scale-up">
-                  <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-3 space-y-1">
-                    <div className="px-3 py-1.5 border-b border-gray-100 mb-1">
-                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                        Targeted Formulations
-                      </span>
-                    </div>
-                    {featuredCategories.map((cat) => (
-                      <Link
-                        key={cat.name}
-                        to={cat.path}
-                        className="px-3 py-2 rounded-xl text-xs font-bold text-gray-700 hover:bg-emerald-50 hover:text-emerald-950 transition-colors flex items-center justify-between"
-                      >
-                        <span>{cat.name}</span>
-                        <span className="text-[10px] text-gray-400 font-semibold">{cat.count}</span>
-                      </Link>
-                    ))}
-                    <div className="pt-1.5 border-t border-gray-100 mt-1">
-                      <Link
-                        to="/discount"
-                        className="px-3 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50/70 hover:bg-rose-100 flex items-center justify-between transition-colors"
-                      >
-                        <span>✨ Special Discounted Sets</span>
-                        <span className="text-[10px] bg-rose-600 text-white px-1.5 py-0.5 rounded-full font-black">
-                          Save up to 30%
-                        </span>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
           </nav>
 
           {/* Right Header Actions */}

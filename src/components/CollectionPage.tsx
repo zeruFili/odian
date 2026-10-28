@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../store/cart";
+import { useCurrency } from "../store/currency";
 import { useMobileFilters } from "../store/filters";
 import { priceInUsd, CATEGORIES, SKIN_TYPES, type Product } from "../data/products";
 import ProductCard from "./ProductCard";
@@ -29,6 +30,7 @@ export default function CollectionPage({
   items,
   heroBadge = "Curated Collection",
 }: CollectionProps) {
+  const { format } = useCurrency();
   const { addToCart } = useCart();
   const { isOpen: mobileFilters, open: openMobileFilters, close: closeMobileFilters } = useMobileFilters();
 
@@ -210,6 +212,70 @@ export default function CollectionPage({
                 </div>
               </div>
 
+              {/* Prominent Price Filter (Doqa Style) */}
+              <div className="space-y-3 pt-3 border-t border-gray-100 bg-emerald-50/40 p-3 rounded-xl border border-emerald-900/10">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <Icon name="tag" size={13} className="text-emerald-800" />
+                    <label className="text-xs font-bold text-gray-900 block">
+                      Price Range
+                    </label>
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-950 text-amber-300 font-mono text-xs font-bold shadow-xs">
+                    Up to {format(maxPrice)}
+                  </span>
+                </div>
+
+                <div className="space-y-1">
+                  <input
+                    type="range"
+                    min={10}
+                    max={PRICE_MAX}
+                    step={5}
+                    value={maxPrice}
+                    onChange={(e) => {
+                      setMaxPrice(Number(e.target.value));
+                      setPage(1);
+                    }}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#123d32]"
+                    aria-label="Filter by maximum price"
+                  />
+                  <div className="flex items-center justify-between text-[10px] font-bold text-gray-500 font-mono">
+                    <span>{format(10)}</span>
+                    <span>{format(PRICE_MAX)}</span>
+                  </div>
+                </div>
+
+                {/* Quick Price Preset Buttons */}
+                <div className="grid grid-cols-4 gap-1 pt-0.5">
+                  {[
+                    { label: "All", max: PRICE_MAX },
+                    { label: "< $35", max: 35 },
+                    { label: "< $60", max: 60 },
+                    { label: "< $100", max: 100 },
+                  ].map((p) => {
+                    const isSelected = maxPrice === p.max;
+                    return (
+                      <button
+                        key={p.label}
+                        type="button"
+                        onClick={() => {
+                          setMaxPrice(p.max);
+                          setPage(1);
+                        }}
+                        className={`py-1 px-1 text-[10px] font-bold rounded-lg border text-center transition-all ${
+                          isSelected
+                            ? "bg-[#123d32] text-amber-300 border-[#123d32] shadow-2xs"
+                            : "bg-white hover:bg-gray-100 text-gray-700 border-gray-200"
+                        }`}
+                      >
+                        {p.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Category Filter */}
               <div className="space-y-2 pt-2 border-t border-gray-100">
                 <div className="flex items-center justify-between">
@@ -309,25 +375,6 @@ export default function CollectionPage({
                     </button>
                   ))}
                 </div>
-              </div>
-
-              {/* Price Slider */}
-              <div className="space-y-2 pt-2 border-t border-gray-100">
-                <div className="flex items-center justify-between text-xs font-bold">
-                  <span className="text-gray-700">Max Price</span>
-                  <span className="text-[#123d32] font-mono">${maxPrice}</span>
-                </div>
-                <input
-                  type="range"
-                  min={10}
-                  max={PRICE_MAX}
-                  value={maxPrice}
-                  onChange={(e) => {
-                    setMaxPrice(Number(e.target.value));
-                    setPage(1);
-                  }}
-                  className="w-full accent-emerald-800 cursor-pointer"
-                />
               </div>
 
               {/* In-Stock Toggle */}
