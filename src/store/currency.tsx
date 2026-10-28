@@ -1,12 +1,12 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { Currency, Product } from '../data/products'
-import { formatPrice as formatPriceUtil } from '../data/products'
+import { formatPrice as formatPriceUtil, ETB_PER_USD } from '../data/products'
 
 interface CurrencyContextValue {
   currency: Currency
   setCurrency: (currency: Currency) => void
   toggleCurrency: () => void
-  format: (product: Product, value?: number) => string
+  format: (productOrAmount: Product | number, value?: number) => string
 }
 
 const CurrencyContext = createContext<CurrencyContextValue | null>(null)
@@ -36,8 +36,15 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     setCurrency(currency === 'USD' ? 'ETB' : 'USD')
   }
 
-  const format = (product: Product, value?: number) => {
-    return formatPriceUtil(product, value, currency)
+  const format = (productOrAmount: Product | number, value?: number): string => {
+    if (typeof productOrAmount === 'number') {
+      if (currency === 'ETB') {
+        const etb = Math.round(productOrAmount * ETB_PER_USD)
+        return `ETB ${etb.toLocaleString('en-US')}`
+      }
+      return `$${productOrAmount.toFixed(2)}`
+    }
+    return formatPriceUtil(productOrAmount, value, currency)
   }
 
   return (
