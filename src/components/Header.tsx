@@ -46,12 +46,9 @@ export default function Header() {
 
   const [scrolledPast, setScrolledPast] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const staticCurrencyRef = useRef<HTMLDivElement>(null);
-  const floatingCurrencyRef = useRef<HTMLDivElement>(null);
   const staticSearchInputRef = useRef<HTMLInputElement>(null);
   const floatingSearchInputRef = useRef<HTMLInputElement>(null);
 
@@ -59,7 +56,6 @@ export default function Header() {
   useEffect(() => {
     setMobileMenuOpen(false);
     setSearchOpen(false);
-    setCurrencyDropdownOpen(false);
   }, [location.pathname]);
 
   // Lock body scroll when mobile menu is open
@@ -101,20 +97,6 @@ export default function Header() {
     }
   }, [searchOpen, scrolledPast]);
 
-  // Close currency dropdown on outside click
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as Node;
-      const inStatic = staticCurrencyRef.current?.contains(target);
-      const inFloating = floatingCurrencyRef.current?.contains(target);
-      if (!inStatic && !inFloating) {
-        setCurrencyDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   // Filter search results
   const searchResults = searchQuery.trim()
     ? products
@@ -141,22 +123,99 @@ export default function Header() {
   ];
 
   const renderHeaderContent = (isFloating: boolean) => (
-    <div className="max-w-[1600px] mx-auto px-3.5 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3 sm:gap-6">
-      {/* Brand Logo */}
-      <Logo />
+    <>
+      <div className="max-w-[1600px] mx-auto px-3.5 sm:px-6 lg:px-8 h-14 sm:h-20 flex items-center justify-between gap-3 sm:gap-6">
+        {/* Brand Logo */}
+        <Logo />
 
-      {/* Navigation Links */}
-      <nav className="hidden md:flex items-center gap-6 lg:gap-8">
+        {/* Navigation Links (Desktop) */}
+        <nav className="hidden md:flex items-center gap-6 lg:gap-8">
+          {navLinks.map((link) => {
+            const isActive = location.pathname === link.path;
+            return (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`text-sm font-bold tracking-tight transition-colors py-1 border-b-2 ${
+                  isActive
+                    ? "text-[#123d32] border-[#123d32]"
+                    : "text-gray-600 border-transparent hover:text-gray-900"
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Right Header Actions */}
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          {/* Quick Search Button */}
+          <button
+            onClick={() => setSearchOpen(!searchOpen)}
+            className="p-2 sm:p-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 transition-colors cursor-pointer"
+            title="Search formulations"
+            aria-label="Search"
+          >
+            <SearchIcon size={17} />
+          </button>
+
+          {/* Wishlist Button */}
+          <button
+            onClick={openWishlist}
+            className="p-2 sm:p-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 relative transition-colors cursor-pointer"
+            title="Saved Formulations Wishlist"
+            aria-label="Wishlist"
+          >
+            <HeartIcon size={17} />
+            {wishlistCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full bg-rose-600 text-white font-black text-[9px] sm:text-[10px] flex items-center justify-center shadow-xs">
+                {wishlistCount}
+              </span>
+            )}
+          </button>
+
+          {/* Shopping Bag Button (Doqa Style) */}
+          <button
+            onClick={openCart}
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 bg-[#123d32] text-white rounded-xl text-xs font-bold hover:bg-[#1a4a3e] transition-all shadow-sm relative group shrink-0 active:scale-98 cursor-pointer"
+            title="View Shopping Bag"
+          >
+            <BagIcon size={16} className="text-amber-400" />
+            <span className="hidden sm:inline">Shopping Bag</span>
+            {cartCount > 0 && (
+              <span className="px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-400 text-emerald-950 font-black text-[11px] sm:text-xs">
+                {cartCount}
+              </span>
+            )}
+          </button>
+
+          {/* Mobile Menu Trigger */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors cursor-pointer"
+            aria-label="Toggle Navigation"
+          >
+            {mobileMenuOpen ? <CloseIcon size={20} /> : <Icon name="menu" size={20} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Responsive Navigation Links: Directly accessible on mobile */}
+      <nav
+        aria-label="Mobile Navigation"
+        className="md:hidden border-t border-gray-100/90 bg-white/95 px-3 py-1.5 flex items-center justify-between gap-1.5"
+      >
         {navLinks.map((link) => {
           const isActive = location.pathname === link.path;
           return (
             <Link
               key={link.path}
               to={link.path}
-              className={`text-sm font-bold tracking-tight transition-colors py-1 border-b-2 ${
+              className={`flex-1 text-center py-1.5 px-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap active:scale-98 ${
                 isActive
-                  ? "text-[#123d32] border-[#123d32]"
-                  : "text-gray-600 border-transparent hover:text-gray-900"
+                  ? "bg-[#123d32] text-amber-300 shadow-2xs"
+                  : "text-gray-700 hover:text-emerald-950 hover:bg-gray-100/70"
               }`}
             >
               {link.label}
@@ -164,115 +223,7 @@ export default function Header() {
           );
         })}
       </nav>
-
-      {/* Right Header Actions */}
-      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-        {/* Quick Search Button */}
-        <button
-          onClick={() => setSearchOpen(!searchOpen)}
-          className="p-2 sm:p-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 transition-colors cursor-pointer"
-          title="Search formulations"
-          aria-label="Search"
-        >
-          <SearchIcon size={17} />
-        </button>
-
-        {/* Currency Selector Dropdown */}
-        <div className="relative" ref={isFloating ? floatingCurrencyRef : staticCurrencyRef}>
-          <button
-            onClick={() => setCurrencyDropdownOpen(!currencyDropdownOpen)}
-            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 text-xs font-bold text-gray-800 transition-colors cursor-pointer"
-            title="Switch Currency"
-          >
-            <span className="w-5 h-5 rounded-md bg-emerald-950 text-amber-400 font-bold flex items-center justify-center text-[10px] shrink-0">
-              {currency === "USD" ? "$" : "ETB"}
-            </span>
-            <span className="hidden sm:inline font-mono text-[11px]">{currency}</span>
-            <Icon name="chevron" size={12} className="text-gray-400" />
-          </button>
-
-          {currencyDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-200 p-2 z-50 animate-scale-up">
-              <div className="px-3 py-1.5 border-b border-gray-100 mb-1">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                  Active Currency
-                </span>
-              </div>
-              {[
-                { code: "USD", label: "US Dollar ($)", rate: "Base Rate" },
-                { code: "ETB", label: "Ethiopian Birr (ETB)", rate: "1 USD = 130 ETB" },
-              ].map((curr) => (
-                <button
-                  key={curr.code}
-                  onClick={() => {
-                    setCurrency(curr.code as any);
-                    setCurrencyDropdownOpen(false);
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs transition-colors flex items-center justify-between cursor-pointer ${
-                    currency === curr.code
-                      ? "bg-emerald-950 text-white font-bold"
-                      : "hover:bg-gray-50 text-gray-700"
-                  }`}
-                >
-                  <div>
-                    <span className="block font-bold">{curr.label}</span>
-                    <span
-                      className={`text-[9px] block ${
-                        currency === curr.code ? "text-emerald-200" : "text-gray-400"
-                      }`}
-                    >
-                      {curr.rate}
-                    </span>
-                  </div>
-                  {currency === curr.code && (
-                    <Icon name="check" size={12} className="text-amber-400" />
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Wishlist Button */}
-        <button
-          onClick={openWishlist}
-          className="p-2 sm:p-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 relative transition-colors cursor-pointer"
-          title="Saved Formulations Wishlist"
-          aria-label="Wishlist"
-        >
-          <HeartIcon size={17} />
-          {wishlistCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full bg-rose-600 text-white font-black text-[9px] sm:text-[10px] flex items-center justify-center shadow-xs">
-              {wishlistCount}
-            </span>
-          )}
-        </button>
-
-        {/* Shopping Bag Button (Doqa Style) */}
-        <button
-          onClick={openCart}
-          className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 bg-[#123d32] text-white rounded-xl text-xs font-bold hover:bg-[#1a4a3e] transition-all shadow-sm relative group shrink-0 active:scale-98 cursor-pointer"
-          title="View Shopping Bag"
-        >
-          <BagIcon size={16} className="text-amber-400" />
-          <span className="hidden sm:inline">Shopping Bag</span>
-          {cartCount > 0 && (
-            <span className="px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-400 text-emerald-950 font-black text-[11px] sm:text-xs">
-              {cartCount}
-            </span>
-          )}
-        </button>
-
-        {/* Mobile Menu Trigger */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors cursor-pointer"
-          aria-label="Toggle Navigation"
-        >
-          {mobileMenuOpen ? <CloseIcon size={20} /> : <Icon name="menu" size={20} />}
-        </button>
-      </div>
-    </div>
+    </>
   );
 
   const renderSearchDrawer = (isFloating: boolean) => {

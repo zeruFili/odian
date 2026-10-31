@@ -1,59 +1,23 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useCart } from "../store/cart";
-import { useCurrency } from "../store/currency";
-import { useMobileFilters } from "../store/filters";
-import {
-  CATEGORIES,
-  SKIN_TYPES,
-  products,
-  priceInUsd,
-  type Product,
-} from "../data/products";
+import { products, priceInUsd, type Product } from "../data/products";
 import ProductCard from "./ProductCard";
 import QuickViewModal from "./QuickViewModal";
 import Footer from "./Footer";
-import Icon, {
-  CloseIcon,
-  FilterIcon,
-  GridViewIcon,
-  ListViewIcon,
-  StarIcon,
-  CheckIcon,
-} from "./Icons";
-
-interface ShopFilters {
-  search: string;
-  categories: string[];
-  skinTypes: string[];
-  brands: string[];
-  maxPrice: number;
-  inStockOnly: boolean;
-}
+import Icon from "./Icons";
+import {
+  PRICE_MAX,
+  FilterSidebar,
+  RitualPillsCarousel,
+  ActiveFiltersBanner,
+  CatalogSearchFilterBar,
+  useProductFilters,
+} from "./ProductFilters";
 
 type SortKey = "default" | "popularity" | "rating" | "latest" | "price-asc" | "price-desc";
 
 const PAGE_SIZE = 12;
-const PRICE_MAX = 200;
-
-const DEFAULT_FILTERS: ShopFilters = {
-  search: "",
-  categories: [],
-  skinTypes: [],
-  brands: [],
-  maxPrice: PRICE_MAX,
-  inStockOnly: false,
-};
-
-const RITUAL_TYPES = [
-  { id: "All", label: "All Rituals", icon: "✨", keywords: [] },
-  { id: "Hydration", label: "Deep Hydration", icon: "💧", keywords: ["hydrat", "hyaluronic", "moist", "water", "mist"] },
-  { id: "Radiance", label: "Radiance & Glow", icon: "✨", keywords: ["radiance", "glow", "bright", "vitamin c", "lumiere"] },
-  { id: "AntiAging", label: "Anti-Aging & Collagen", icon: "🛡️", keywords: ["collagen", "retinol", "elasticity", "firm", "wrinkle", "renewal"] },
-  { id: "Calming", label: "Calming & Sensitive", icon: "🌿", keywords: ["sensitiv", "calm", "cica", "centella", "sooth"] },
-  { id: "SunCare", label: "Sun & Defense", icon: "☀️", keywords: ["spf", "sunscreen", "defense", "uv"] },
-  { id: "BodyHair", label: "Body & Hair Care", icon: "🧴", keywords: ["body", "hair", "butter", "argan", "rosemary"] },
-];
 
 const TICKER_ITEMS = [
   "🌿 100% Cold-Pressed Plant Squalane & Ceramide NP",
@@ -67,100 +31,83 @@ const TICKER_ITEMS = [
 ];
 
 export default function ShopPage() {
-  const { format } = useCurrency();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filters, setFilters] = useState<ShopFilters>(DEFAULT_FILTERS);
-  const [selectedRitual, setSelectedRitual] = useState<string>("All");
   const [sort, setSort] = useState<SortKey>("default");
   const [page, setPage] = useState<number>(1);
   const [isListView, setIsListView] = useState<boolean>(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
 
-  const { isOpen: mobileFilters, open: openMobileFilters, close: closeMobileFilters } = useMobileFilters();
   const { addToCart } = useCart();
 
-  // Lock body scroll when mobile filters are open
-  useEffect(() => {
-    if (mobileFilters) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [mobileFilters]);
+  const {
+    filters,
+    setFilters,
+    setSearch,
+    setMaxPrice,
+    setInStockOnly,
+    clearCategories,
+    selectedRitual,
+    setSelectedRitual,
+    toggleCategory,
+    toggleSkinType,
+    resetAll,
+    activeFiltersCount,
+    isFiltered,
+    filteredItems,
+    categoryCounts,
+    mobileFilters,
+    openMobileFilters,
+    closeMobileFilters,
+  } = useProductFilters(products, {
+    initialCategories: searchParams.get("category") ? [searchParams.get("category")!] : [],
+  });
 
   // Read URL params
   useEffect(() => {
     const cat = searchParams.get("category");
-    if (cat) {
+    if (cat && (!filters.categories.includes(cat) || filters.categories.length > 1)) {
       setFilters((f) => ({ ...f, categories: [cat] }));
-      setPage(1);
     }
   }, [searchParams]);
 
-  // Category counts
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { All: products.length };
-    products.forEach((p) => {
-      p.categories.forEach((c) => {
-        counts[c] = (counts[c] || 0) + 1;
-      });
-    });
-    return counts;
-  }, []);
-
-  // Filtered products
-  const visible = useMemo(() => {
-    return products.filter((p) => {
-      // Keyword search
-      if (filters.search.trim()) {
-        const q = filters.search.toLowerCase();
-        const matchesName = p.name.toLowerCase().includes(q);
-        const matchesCat = p.category.toLowerCase().includes(q);
-        const matchesDesc = p.description.toLowerCase().includes(q);
-        const matchesBrand = p.brand ? p.brand.toLowerCase().includes(q) : false;
-        if (!matchesName && !matchesCat && !matchesDesc && !matchesBrand) return false;
-      }
-
-      // Ritual filter
-      if (selectedRitual !== "All") {
-        const rit = RITUAL_TYPES.find((r) => r.id === selectedRitual);
-        if (rit && rit.keywords.length > 0) {
-          const text = `${p.name} ${p.category} ${p.description} ${p.skinTypes.join(" ")}`.toLowerCase();
-          const matches = rit.keywords.some((kw) => text.includes(kw));
-          if (!matches) return false;
-        }
-      }
-
-      // Category filter
-      if (filters.categories.length > 0 && !p.categories.some((c) => filters.categories.includes(c))) {
-        return false;
-      }
-
-      // Skin type filter
-      if (filters.skinTypes.length > 0 && !p.skinTypes.some((s) => filters.skinTypes.includes(s))) {
-        return false;
-      }
-
-      // Price filter
-      if (priceInUsd(p) > filters.maxPrice) {
-        return false;
-      }
-
-      // In-stock filter
-      if (filters.inStockOnly && p.type === "outofstock") {
-        return false;
-      }
-
-      return true;
-    });
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
   }, [filters, selectedRitual]);
+
+  const handleToggleCategory = (cat: string) => {
+    const isSelected = filters.categories.includes(cat);
+    const updated = isSelected ? filters.categories.filter((c) => c !== cat) : [...filters.categories, cat];
+    if (updated.length === 1) {
+      setSearchParams({ category: updated[0] });
+    } else {
+      setSearchParams({});
+    }
+    toggleCategory(cat);
+  };
+
+  const handleClearCategories = () => {
+    setSearchParams({});
+    clearCategories();
+  };
+
+  const handleResetAll = () => {
+    setSearchParams({});
+    resetAll();
+  };
+
+  const handleToggleFilters = () => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      openMobileFilters();
+    } else {
+      setDesktopSidebarOpen((prev) => !prev);
+    }
+  };
 
   // Sorted products
   const sorted = useMemo(() => {
-    return [...visible].sort((a, b) => {
+    return [...filteredItems].sort((a, b) => {
       switch (sort) {
         case "popularity":
           return b.reviews - a.reviews;
@@ -176,63 +123,33 @@ export default function ShopPage() {
           return 0;
       }
     });
-  }, [visible, sort]);
+  }, [filteredItems, sort]);
 
   const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const paged = sorted.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  function toggleCategory(cat: string) {
-    setPage(1);
-    setFilters((f) => {
-      const isSelected = f.categories.includes(cat);
-      const updated = isSelected ? f.categories.filter((c) => c !== cat) : [...f.categories, cat];
-      if (updated.length === 1) {
-        setSearchParams({ category: updated[0] });
-      } else {
-        setSearchParams({});
-      }
-      return { ...f, categories: updated };
-    });
-  }
-
-  function toggleSkinType(st: string) {
-    setPage(1);
-    setFilters((f) => {
-      const isSelected = f.skinTypes.includes(st);
-      return {
-        ...f,
-        skinTypes: isSelected ? f.skinTypes.filter((s) => s !== st) : [...f.skinTypes, st],
-      };
-    });
-  }
-
-  function resetAll() {
-    setFilters(DEFAULT_FILTERS);
-    setSelectedRitual("All");
-    setSearchParams({});
-    setPage(1);
-  }
-
-  const activeFiltersCount =
-    filters.categories.length +
-    filters.skinTypes.length +
-    (filters.search.trim() ? 1 : 0) +
-    (selectedRitual !== "All" ? 1 : 0) +
-    (filters.inStockOnly ? 1 : 0) +
-    (filters.maxPrice < PRICE_MAX ? 1 : 0);
-
   return (
     <div className="space-y-8 bg-[#f8faf7] min-h-screen">
       {/* Category Ticker Banner (Doqa Style) */}
-      <div className="overflow-hidden bg-[#18352b]/5 py-2.5 border-y border-emerald-950/10">
-        <div className="flex gap-8 whitespace-nowrap animate-slide-left text-xs font-bold text-emerald-950">
-          {TICKER_ITEMS.concat(TICKER_ITEMS).map((item, idx) => (
-            <span key={idx} className="flex items-center gap-2">
-              <span>{item}</span>
-              <span className="text-emerald-700/40">•</span>
-            </span>
-          ))}
+      <div className="overflow-hidden bg-[#18352b]/5 py-2.5 border-y border-emerald-950/10 select-none">
+        <div className="flex w-max animate-marquee text-xs font-bold text-emerald-950">
+          <div className="flex items-center gap-8 pr-8 shrink-0">
+            {TICKER_ITEMS.map((item, idx) => (
+              <span key={`ticker-1-${idx}`} className="flex items-center gap-2">
+                <span>{item}</span>
+                <span className="text-emerald-700/40">•</span>
+              </span>
+            ))}
+          </div>
+          <div className="flex items-center gap-8 pr-8 shrink-0" aria-hidden="true">
+            {TICKER_ITEMS.map((item, idx) => (
+              <span key={`ticker-2-${idx}`} className="flex items-center gap-2">
+                <span>{item}</span>
+                <span className="text-emerald-700/40">•</span>
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -257,61 +174,38 @@ export default function ShopPage() {
 
             {/* Quick Hero Buttons */}
             <div className="flex flex-wrap items-center gap-2.5 pt-2">
-              <button
-                onClick={() => {
-                  setFilters({ ...DEFAULT_FILTERS, categories: ["Serums"] });
-                  setSelectedRitual("All");
-                  setPage(1);
-                }}
-                className="px-3.5 py-2 bg-white text-emerald-950 rounded-xl text-xs font-bold hover:bg-gray-100 transition-colors shadow-sm flex items-center gap-1.5"
-              >
-                <span>💧</span>
-                <span>Active Serums</span>
-              </button>
-              <button
-                onClick={() => {
-                  setFilters({ ...DEFAULT_FILTERS, categories: ["Face Care"] });
-                  setSelectedRitual("All");
-                  setPage(1);
-                }}
-                className="px-3.5 py-2 bg-emerald-900/60 hover:bg-emerald-900 border border-emerald-500/30 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5"
-              >
-                <span>🧴</span>
-                <span>Face Creams & Balms</span>
-              </button>
-              <button
-                onClick={() => {
-                  setFilters({ ...DEFAULT_FILTERS, categories: ["Treatments"] });
-                  setSelectedRitual("All");
-                  setPage(1);
-                }}
-                className="px-3.5 py-2 bg-emerald-900/60 hover:bg-emerald-900 border border-emerald-500/30 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5"
-              >
-                <span>☀️</span>
-                <span>SPF 50 Shields</span>
-              </button>
-              <button
-                onClick={() => {
-                  setFilters({ ...DEFAULT_FILTERS, categories: ["Cleansers"] });
-                  setSelectedRitual("All");
-                  setPage(1);
-                }}
-                className="px-3.5 py-2 bg-emerald-900/60 hover:bg-emerald-900 border border-emerald-500/30 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5"
-              >
-                <span>🫧</span>
-                <span>AHA Cleansers</span>
-              </button>
-              <button
-                onClick={() => {
-                  setFilters({ ...DEFAULT_FILTERS, categories: ["Oils"] });
-                  setSelectedRitual("All");
-                  setPage(1);
-                }}
-                className="px-3.5 py-2 bg-emerald-900/60 hover:bg-emerald-900 border border-emerald-500/30 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5"
-              >
-                <span>🌿</span>
-                <span>Face & Body Oils</span>
-              </button>
+              {[
+                { label: "Active Serums", cat: "Serums", icon: "💧" },
+                { label: "Face Creams & Balms", cat: "Face Care", icon: "🧴" },
+                { label: "SPF 50 Shields", cat: "Treatments", icon: "☀️" },
+                { label: "AHA Cleansers", cat: "Cleansers", icon: "🫧" },
+                { label: "Face & Body Oils", cat: "Oils", icon: "🌿" },
+              ].map((btn) => (
+                <button
+                  key={btn.cat}
+                  type="button"
+                  onClick={() => {
+                    setFilters({
+                      search: "",
+                      categories: [btn.cat],
+                      skinTypes: [],
+                      maxPrice: PRICE_MAX,
+                      inStockOnly: false,
+                      tier: "All",
+                    });
+                    setSelectedRitual("All");
+                    setSearchParams({ category: btn.cat });
+                  }}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors shadow-sm flex items-center gap-1.5 ${
+                    filters.categories.includes(btn.cat)
+                      ? "bg-white text-emerald-950"
+                      : "bg-emerald-900/60 hover:bg-emerald-900 border border-emerald-500/30 text-white"
+                  }`}
+                >
+                  <span>{btn.icon}</span>
+                  <span>{btn.label}</span>
+                </button>
+              ))}
             </div>
           </div>
 
@@ -321,369 +215,86 @@ export default function ShopPage() {
 
         {/* Main Catalog Section: Sidebar Filters + Products Grid */}
         <div className="layout-side-by-side flex flex-col md:flex-row gap-6 lg:gap-8 items-start w-full">
-          {/* Left Filter Sidebar (Always side-by-side on desktop) */}
-          <aside
-            className={`layout-sidebar w-full md:w-64 lg:w-72 xl:w-80 shrink-0 md:sticky md:top-24 z-30 ${
-              mobileFilters
-                ? "fixed inset-0 z-50 p-4 sm:p-6 bg-white overflow-y-auto block"
-                : "hidden md:block"
-            }`}
-          >
-            {mobileFilters && (
-              <div className="sticky top-0 -m-4 sm:-m-6 mb-4 p-4 sm:p-5 bg-white/95 backdrop-blur-md border-b border-gray-200 flex items-center justify-between z-20 md:hidden shadow-xs">
-                <div>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800">
-                    ODILIA FILTERS
-                  </span>
-                  <strong className="text-base font-bold text-gray-900 block font-display">
-                    Filter Formulations
-                  </strong>
-                </div>
-                <div className="flex items-center gap-2">
-                  {activeFiltersCount > 0 && (
-                    <button
-                      onClick={resetAll}
-                      className="px-2.5 py-1 bg-amber-50 text-amber-900 border border-amber-200 rounded-lg text-xs font-bold"
-                    >
-                      Reset ({activeFiltersCount})
-                    </button>
-                  )}
-                  <button
-                    onClick={closeMobileFilters}
-                    className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-xl"
-                    aria-label="Close filters"
-                  >
-                    <CloseIcon size={20} />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-2xs space-y-6">
-              <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-                <span className="text-xs font-bold uppercase tracking-wider text-gray-900">
-                  Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
-                </span>
-                {activeFiltersCount > 0 && (
-                  <button
-                    onClick={resetAll}
-                    className="text-xs text-amber-700 hover:text-amber-800 font-bold"
-                  >
-                    Reset all
-                  </button>
-                )}
-              </div>
-
-              {/* Keyword Search Input */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-700 block">Keyword Search</label>
-                <div className="relative">
-                  <Icon name="search" size={14} className="absolute left-3 top-2.5 text-gray-400" />
-                  <input
-                    type="text"
-                    value={filters.search}
-                    onChange={(e) => {
-                      setFilters((f) => ({ ...f, search: e.target.value }));
-                      setPage(1);
-                    }}
-                    placeholder="e.g. squalane, serum, spf, cica..."
-                    className="w-full pl-8 pr-3 py-2 text-xs border border-gray-200 rounded-xl bg-gray-50 focus:bg-white outline-none focus:ring-1 focus:ring-emerald-700 text-gray-900"
-                  />
-                </div>
-              </div>
-
-              {/* Prominent Price Filter (Doqa Style) */}
-              <div className="space-y-3 pt-3 border-t border-gray-100 bg-emerald-50/40 p-3 rounded-xl border border-emerald-900/10">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <Icon name="tag" size={13} className="text-emerald-800" />
-                    <label className="text-xs font-bold text-gray-900 block">
-                      Price Range
-                    </label>
-                  </div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-950 text-amber-300 font-mono text-xs font-bold shadow-xs">
-                    Up to {format(filters.maxPrice)}
-                  </span>
-                </div>
-
-                <div className="space-y-1">
-                  <input
-                    type="range"
-                    min={10}
-                    max={PRICE_MAX}
-                    step={5}
-                    value={filters.maxPrice}
-                    onChange={(e) => {
-                      setFilters((f) => ({ ...f, maxPrice: Number(e.target.value) }));
-                      setPage(1);
-                    }}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#123d32]"
-                    aria-label="Filter by maximum price"
-                  />
-                  <div className="flex items-center justify-between text-[10px] font-bold text-gray-500 font-mono">
-                    <span>{format(10)}</span>
-                    <span>{format(PRICE_MAX)}</span>
-                  </div>
-                </div>
-
-                {/* Quick Price Preset Buttons */}
-                <div className="grid grid-cols-4 gap-1 pt-0.5">
-                  {[
-                    { label: "All", max: PRICE_MAX },
-                    { label: "< $35", max: 35 },
-                    { label: "< $60", max: 60 },
-                    { label: "< $100", max: 100 },
-                  ].map((p) => {
-                    const isSelected = filters.maxPrice === p.max;
-                    return (
-                      <button
-                        key={p.label}
-                        type="button"
-                        onClick={() => {
-                          setFilters((f) => ({ ...f, maxPrice: p.max }));
-                          setPage(1);
-                        }}
-                        className={`py-1 px-1 text-[10px] font-bold rounded-lg border text-center transition-all ${
-                          isSelected
-                            ? "bg-[#123d32] text-amber-300 border-[#123d32] shadow-2xs"
-                            : "bg-white hover:bg-gray-100 text-gray-700 border-gray-200"
-                        }`}
-                      >
-                        {p.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Ritual & Concern Quick Buttons */}
-              <div className="space-y-2 pt-2 border-t border-gray-100">
-                <label className="text-xs font-bold text-gray-700 block">Skincare Ritual</label>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {RITUAL_TYPES.map((rit) => (
-                    <button
-                      key={rit.id}
-                      onClick={() => {
-                        setSelectedRitual(rit.id);
-                        setPage(1);
-                      }}
-                      className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all text-left flex items-center gap-1.5 border ${
-                        selectedRitual === rit.id
-                          ? "bg-emerald-900 text-white border-emerald-900 shadow-2xs"
-                          : "bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200/80"
-                      }`}
-                    >
-                      <span>{rit.icon}</span>
-                      <span className="truncate">{rit.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Category Filter */}
-              <div className="space-y-2 pt-2 border-t border-gray-100">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-gray-700 block">Category</label>
-                  {filters.categories.length > 0 && (
-                    <button
-                      onClick={() => setFilters((f) => ({ ...f, categories: [] }))}
-                      className="text-[10px] text-emerald-800 font-bold hover:underline"
-                    >
-                      Show all
-                    </button>
-                  )}
-                </div>
-                <div className="space-y-1 max-h-64 overflow-y-auto pr-1">
-                  {CATEGORIES.map((cat) => {
-                    const isSelected = filters.categories.includes(cat);
-                    return (
-                      <button
-                        key={cat}
-                        onClick={() => toggleCategory(cat)}
-                        className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between group ${
-                          isSelected
-                            ? "bg-emerald-950 text-white font-bold"
-                            : "text-gray-600 hover:bg-gray-100"
-                        }`}
-                      >
-                        <span className="truncate pr-1">{cat}</span>
-                        <span
-                          className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                            isSelected
-                              ? "bg-amber-400 text-emerald-950"
-                              : "bg-gray-100 text-gray-500 group-hover:bg-gray-200"
-                          }`}
-                        >
-                          {categoryCounts[cat] || 0}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Skin Type Filter */}
-              <div className="space-y-2 pt-2 border-t border-gray-100">
-                <label className="text-xs font-bold text-gray-700 block">Skin Type</label>
-                <div className="flex flex-wrap gap-1.5">
-                  {SKIN_TYPES.map((st) => {
-                    const isSelected = filters.skinTypes.includes(st);
-                    return (
-                      <button
-                        key={st}
-                        onClick={() => toggleSkinType(st)}
-                        className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all ${
-                          isSelected
-                            ? "bg-[#123d32] text-amber-300 border-[#123d32]"
-                            : "bg-gray-50 text-gray-700 hover:bg-gray-100 border-gray-200"
-                        }`}
-                      >
-                        {st}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Stock Availability Toggle */}
-              <div className="pt-2 border-t border-gray-100">
-                <label className="flex items-center gap-2 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={filters.inStockOnly}
-                    onChange={(e) => {
-                      setFilters((f) => ({ ...f, inStockOnly: e.target.checked }));
-                      setPage(1);
-                    }}
-                    className="rounded border-gray-300 text-emerald-800 focus:ring-emerald-600"
-                  />
-                  <span className="text-xs font-semibold text-gray-700">In-Stock Only</span>
-                </label>
-              </div>
-
-              {mobileFilters && (
-                <div className="sticky bottom-0 -m-4 sm:-m-5 mt-4 p-4 sm:p-5 bg-white/95 backdrop-blur-md border-t border-gray-200 z-20 md:hidden shadow-lg">
-                  <button
-                    onClick={closeMobileFilters}
-                    className="w-full py-3 bg-[#123d32] text-white rounded-xl text-xs font-bold shadow-md hover:bg-[#1a4a3e] active:scale-98 transition-all flex items-center justify-center gap-2"
-                  >
-                    <span>Apply Filters</span>
-                    <span className="px-2 py-0.5 rounded-full bg-amber-400 text-emerald-950 font-black text-[11px]">
-                      {sorted.length} Formulations
-                    </span>
-                  </button>
-                </div>
-              )}
-            </div>
-          </aside>
+          {/* Reusable Filter Sidebar */}
+          <FilterSidebar
+            filters={filters}
+            selectedRitual={selectedRitual}
+            categoryCounts={categoryCounts}
+            totalMatching={sorted.length}
+            activeFiltersCount={activeFiltersCount}
+            isOpen={mobileFilters}
+            onClose={closeMobileFilters}
+            onReset={handleResetAll}
+            onSearchChange={setSearch}
+            onMaxPriceChange={setMaxPrice}
+            onSelectRitual={setSelectedRitual}
+            onToggleCategory={handleToggleCategory}
+            onClearCategories={handleClearCategories}
+            onToggleSkinType={toggleSkinType}
+            onInStockChange={setInStockOnly}
+            sidebarTitle="Filters"
+            itemLabel="Formulations"
+            isDesktopVisible={desktopSidebarOpen}
+          />
 
           {/* Right Main Grid Area */}
           <div className="layout-content flex-1 min-w-0 w-full space-y-6">
-            {/* Quick Ritual Carousel Pills (Doqa Style) */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-              {RITUAL_TYPES.map((rit) => (
-                <button
-                  key={rit.id}
-                  onClick={() => {
-                    setSelectedRitual(rit.id);
-                    setPage(1);
-                  }}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 border shadow-2xs ${
-                    selectedRitual === rit.id
-                      ? "bg-[#123d32] text-amber-300 border-[#123d32] shadow-sm"
-                      : "bg-white text-gray-700 hover:bg-gray-50 border-gray-200"
-                  }`}
-                >
-                  <span>{rit.icon}</span>
-                  <span>{rit.label}</span>
-                </button>
-              ))}
-            </div>
+            {/* Search & Filter Bar - Exact match to user reference */}
+            <CatalogSearchFilterBar
+              searchValue={filters.search}
+              onSearchChange={setSearch}
+              searchPlaceholder="Search silhouettes, designers, SKU..."
+              onOpenFilters={handleToggleFilters}
+              activeFiltersCount={activeFiltersCount}
+              sortKey={sort}
+              onSortChange={(val) => {
+                setSort(val as any);
+                setPage(1);
+              }}
+              sortOptions={[
+                { value: "default", label: "Featured Curation" },
+                { value: "popularity", label: "Most Popular" },
+                { value: "rating", label: "Highest Rated" },
+                { value: "latest", label: "New Arrivals" },
+                { value: "price-asc", label: "Price: Low to High" },
+                { value: "price-desc", label: "Price: High to Low" },
+              ]}
+              isListView={isListView}
+              onListViewChange={setIsListView}
+            />
 
-            {/* Active Category Banner if filtered */}
-            {filters.categories.length > 0 && (
-              <div className="bg-emerald-50 border border-emerald-200/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 block">
-                    Category Filter
-                  </span>
-                  <strong className="text-base font-bold text-emerald-950 font-display">
-                    {filters.categories.join(", ")}
-                  </strong>
-                  <span className="text-xs text-emerald-700 ml-2">
-                    ({visible.length} formulations available)
-                  </span>
-                </div>
-                <button
-                  onClick={() => setFilters((f) => ({ ...f, categories: [] }))}
-                  className="px-3 py-1.5 bg-white border border-emerald-300 text-emerald-900 rounded-xl text-xs font-bold hover:bg-emerald-100 transition-colors self-start sm:self-auto"
-                >
-                  View all categories
-                </button>
-              </div>
+            {/* Reusable Quick Ritual Carousel */}
+            <RitualPillsCarousel
+              selectedRitual={selectedRitual}
+              onSelectRitual={setSelectedRitual}
+            />
+
+            {/* Reusable Active Filters Banner */}
+            {isFiltered && (
+              <ActiveFiltersBanner
+                filters={filters}
+                selectedRitual={selectedRitual}
+                matchingCount={sorted.length}
+                onClear={handleResetAll}
+                itemLabel="formulations available"
+              />
             )}
 
-            {/* Toolbar (Doqa Style) */}
-            <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-gray-200 shadow-2xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-              <div className="flex items-center justify-between sm:justify-start gap-3 w-full sm:w-auto">
+            {/* Results Count Summary */}
+            <div className="flex items-center justify-between text-xs font-semibold text-gray-500 px-1">
+              <span>
+                Showing <strong className="text-gray-900">{paged.length}</strong> of{" "}
+                <strong className="text-gray-900">{sorted.length}</strong> formulations
+              </span>
+              {!desktopSidebarOpen && (
                 <button
-                  onClick={openMobileFilters}
-                  className="md:hidden px-3 py-2 bg-[#123d32] text-amber-300 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs active:scale-98"
+                  type="button"
+                  onClick={() => setDesktopSidebarOpen(true)}
+                  className="hidden md:inline-flex items-center gap-1 text-xs font-bold text-emerald-800 hover:text-emerald-950"
                 >
-                  <FilterIcon size={14} />
-                  <span>Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}</span>
+                  Show sidebar filters →
                 </button>
-
-                <span className="text-xs font-semibold text-gray-500">
-                  Showing <strong className="text-gray-900">{paged.length}</strong> of{" "}
-                  <strong className="text-gray-900">{sorted.length}</strong> formulations
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto">
-                {/* View Switcher */}
-                <div className="flex items-center border border-gray-200 rounded-xl bg-gray-50 p-0.5 shrink-0">
-                  <button
-                    onClick={() => setIsListView(false)}
-                    className={`p-1.5 rounded-lg transition-colors ${
-                      !isListView ? "bg-white text-gray-900 shadow-2xs" : "text-gray-400 hover:text-gray-700"
-                    }`}
-                    title="Grid view"
-                    aria-label="Grid view"
-                  >
-                    <GridViewIcon size={15} />
-                  </button>
-                  <button
-                    onClick={() => setIsListView(true)}
-                    className={`p-1.5 rounded-lg transition-colors ${
-                      isListView ? "bg-white text-gray-900 shadow-2xs" : "text-gray-400 hover:text-gray-700"
-                    }`}
-                    title="List view"
-                    aria-label="List view"
-                  >
-                    <ListViewIcon size={15} />
-                  </button>
-                </div>
-
-                {/* Sort Dropdown */}
-                <div className="flex items-center gap-1.5 flex-1 sm:flex-initial justify-end">
-                  <select
-                    value={sort}
-                    onChange={(e) => {
-                      setSort(e.target.value as any);
-                      setPage(1);
-                    }}
-                    className="w-full sm:w-auto bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-gray-900 outline-none focus:ring-1 focus:ring-emerald-700"
-                  >
-                    <option value="default">Featured Formulations</option>
-                    <option value="popularity">Most Popular</option>
-                    <option value="rating">Highest Rated</option>
-                    <option value="latest">New Arrivals</option>
-                    <option value="price-asc">Price: Low to High</option>
-                    <option value="price-desc">Price: High to Low</option>
-                  </select>
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Products Grid or Empty State */}
@@ -699,7 +310,7 @@ export default function ShopPage() {
                   Try clearing your skin type, category, or search filters to explore other botanical remedies.
                 </p>
                 <button
-                  onClick={resetAll}
+                  onClick={handleResetAll}
                   className="mt-2 px-4 py-2 bg-emerald-950 text-white rounded-xl text-xs font-bold"
                 >
                   Clear all filters
@@ -718,7 +329,11 @@ export default function ShopPage() {
                 ))}
               </ul>
             ) : (
-              <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+              <ul
+                className={`grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 ${
+                  desktopSidebarOpen ? "xl:grid-cols-3" : "lg:grid-cols-3 xl:grid-cols-4"
+                }`}
+              >
                 {paged.map((product) => (
                   <ProductCard
                     key={product.id}

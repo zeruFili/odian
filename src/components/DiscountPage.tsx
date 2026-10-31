@@ -1,46 +1,53 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { onSaleProducts, priceInUsd, CATEGORIES, SKIN_TYPES, type Product } from "../data/products";
+import { onSaleProducts, priceInUsd, type Product } from "../data/products";
 import { useCart } from "../store/cart";
-import { useCurrency } from "../store/currency";
-import { useMobileFilters } from "../store/filters";
 import ProductCard from "./ProductCard";
 import QuickViewModal from "./QuickViewModal";
 import Footer from "./Footer";
-import Icon, { CloseIcon, FilterIcon, GridViewIcon, ListViewIcon } from "./Icons";
-
-const PAGE_SIZE = 12;
-const PRICE_MAX = 200;
+import Icon from "./Icons";
+import {
+  FilterSidebar,
+  RitualPillsCarousel,
+  DiscountTierPills,
+  ActiveFiltersBanner,
+  CatalogSearchFilterBar,
+  useProductFilters,
+} from "./ProductFilters";
 
 type SortKey = "discount-desc" | "savings-desc" | "price-asc" | "price-desc";
 
-export default function DiscountPage() {
-  const { format } = useCurrency();
-  const { addToCart } = useCart();
-  const { isOpen: mobileFilters, open: openMobileFilters, close: closeMobileFilters } = useMobileFilters();
+const PAGE_SIZE = 12;
 
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [selectedTier, setSelectedTier] = useState<string>("All");
-  const [selectedSkinType, setSelectedSkinType] = useState<string>("All");
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [maxPrice, setMaxPrice] = useState<number>(PRICE_MAX);
-  const [inStockOnly, setInStockOnly] = useState<boolean>(false);
+export default function DiscountPage() {
+  const { addToCart } = useCart();
+
   const [sortKey, setSortKey] = useState<SortKey>("discount-desc");
   const [page, setPage] = useState<number>(1);
   const [isListView, setIsListView] = useState<boolean>(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
 
-  // Lock body scroll when mobile filters are open
-  useEffect(() => {
-    if (mobileFilters) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [mobileFilters]);
+  const {
+    filters,
+    setSearch,
+    setMaxPrice,
+    setInStockOnly,
+    setTier,
+    clearCategories,
+    selectedRitual,
+    setSelectedRitual,
+    toggleCategory,
+    toggleSkinType,
+    resetAll,
+    activeFiltersCount,
+    isFiltered,
+    filteredItems,
+    categoryCounts,
+    mobileFilters,
+    openMobileFilters,
+    closeMobileFilters,
+  } = useProductFilters(onSaleProducts);
 
   // Discount percentage helper
   const getDiscountPercent = (p: Product) => {
@@ -53,64 +60,44 @@ export default function DiscountPage() {
     return p.compareAtPrice - p.price;
   };
 
-  // Category counts for on-sale items
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { All: onSaleProducts.length };
-    onSaleProducts.forEach((p) => {
-      p.categories.forEach((cat) => {
-        counts[cat] = (counts[cat] || 0) + 1;
-      });
-    });
-    return counts;
+  // Discount tier counts for on-sale items
+  const discountTierCounts = useMemo(() => {
+    return {
+      All: onSaleProducts.length,
+      "30": onSaleProducts.filter((p) => getDiscountPercent(p) >= 30).length,
+      "25": onSaleProducts.filter((p) => {
+        const d = getDiscountPercent(p);
+        return d >= 25 && d < 30;
+      }).length,
+      "20": onSaleProducts.filter((p) => {
+        const d = getDiscountPercent(p);
+        return d >= 20 && d < 25;
+      }).length,
+      "15": onSaleProducts.filter((p) => getDiscountPercent(p) < 20).length,
+    };
   }, []);
 
-  // Filtered deals
-  const filteredDeals = useMemo(() => {
-    return onSaleProducts.filter((p) => {
-      const discount = getDiscountPercent(p);
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [filters, selectedRitual]);
 
-      // Tier filter
-      if (selectedTier === "30" && discount < 30) return false;
-      if (selectedTier === "25" && (discount < 25 || discount >= 30)) return false;
-      if (selectedTier === "20" && (discount < 20 || discount >= 25)) return false;
-      if (selectedTier === "15" && discount >= 20) return false;
+  const handleResetAll = () => {
+    resetAll();
+    setSortKey("discount-desc");
+  };
 
-      // Category filter
-      if (selectedCategory !== "All" && !p.categories.includes(selectedCategory)) {
-        return false;
-      }
-
-      // Skin Type filter
-      if (selectedSkinType !== "All" && !p.skinTypes.includes(selectedSkinType)) {
-        return false;
-      }
-
-      // Max Price filter
-      if (priceInUsd(p) > maxPrice) {
-        return false;
-      }
-
-      // In stock
-      if (inStockOnly && p.type === "outofstock") return false;
-
-      // Search
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        const matches =
-          p.name.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          (p.brand && p.brand.toLowerCase().includes(q));
-        if (!matches) return false;
-      }
-
-      return true;
-    });
-  }, [selectedCategory, selectedTier, selectedSkinType, inStockOnly, searchQuery, maxPrice]);
+  const handleToggleFilters = () => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      openMobileFilters();
+    } else {
+      setDesktopSidebarOpen((prev) => !prev);
+    }
+  };
 
   // Sorted deals
   const sortedDeals = useMemo(() => {
-    return [...filteredDeals].sort((a, b) => {
+    return [...filteredItems].sort((a, b) => {
       if (sortKey === "discount-desc") {
         return getDiscountPercent(b) - getDiscountPercent(a);
       }
@@ -125,30 +112,11 @@ export default function DiscountPage() {
       }
       return 0;
     });
-  }, [filteredDeals, sortKey]);
+  }, [filteredItems, sortKey]);
 
   const totalPages = Math.max(1, Math.ceil(sortedDeals.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const pagedDeals = sortedDeals.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-
-  const resetFilters = () => {
-    setSelectedCategory("All");
-    setSelectedTier("All");
-    setSelectedSkinType("All");
-    setSearchQuery("");
-    setMaxPrice(PRICE_MAX);
-    setInStockOnly(false);
-    setSortKey("discount-desc");
-    setPage(1);
-  };
-
-  const isFiltered =
-    selectedCategory !== "All" ||
-    selectedTier !== "All" ||
-    selectedSkinType !== "All" ||
-    searchQuery.trim() !== "" ||
-    maxPrice < PRICE_MAX ||
-    inStockOnly;
 
   return (
     <div className="bg-[#f8faf7] min-h-screen py-6 sm:py-8 space-y-8">
@@ -200,423 +168,99 @@ export default function DiscountPage() {
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:28px_28px] pointer-events-none" />
         </div>
 
-        {/* Main Section: Side-by-Side Filter Sidebar & Product List in Desktop View */}
+        {/* Main Section: Side-by-Side Filter Sidebar & Product List */}
         <div className="layout-side-by-side flex flex-col md:flex-row gap-6 lg:gap-8 items-start w-full">
-          {/* Left Filter Sidebar (Always side-by-side on desktop) */}
-          <aside
-            className={`layout-sidebar w-full md:w-64 lg:w-72 xl:w-80 shrink-0 md:sticky md:top-24 z-30 ${
-              mobileFilters
-                ? "fixed inset-0 z-50 p-4 sm:p-6 bg-white overflow-y-auto block animate-fade-in"
-                : "hidden md:block"
-            }`}
-          >
-            {mobileFilters && (
-              <div className="sticky top-0 -m-4 sm:-m-6 mb-4 p-4 sm:p-5 bg-white/95 backdrop-blur-md border-b border-gray-200 flex items-center justify-between z-20 md:hidden shadow-xs">
-                <div>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-rose-700">
-                    SPECIAL OFFERS
-                  </span>
-                  <strong className="text-base font-bold text-gray-900 block font-display">
-                    Filter Promotions
-                  </strong>
-                </div>
-                <div className="flex items-center gap-2">
-                  {isFiltered && (
-                    <button
-                      onClick={resetFilters}
-                      className="px-2.5 py-1 bg-rose-50 text-rose-800 border border-rose-200 rounded-lg text-xs font-bold"
-                    >
-                      Reset
-                    </button>
-                  )}
-                  <button
-                    onClick={closeMobileFilters}
-                    className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-xl"
-                    aria-label="Close filters"
-                  >
-                    <CloseIcon size={20} />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-2xs space-y-6">
-              <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-                <span className="text-xs font-bold uppercase tracking-wider text-gray-900">
-                  Deal Filters
-                </span>
-                {isFiltered && (
-                  <button
-                    onClick={resetFilters}
-                    className="text-xs text-rose-700 hover:text-rose-800 font-bold"
-                  >
-                    Reset all
-                  </button>
-                )}
-              </div>
-
-              {/* Keyword Search */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-700 block">Keyword Search</label>
-                <div className="relative">
-                  <Icon name="search" size={14} className="absolute left-3 top-2.5 text-gray-400" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => {
-                      setSearchQuery(e.target.value);
-                      setPage(1);
-                    }}
-                    placeholder="Search discounted items..."
-                    className="w-full pl-8 pr-3 py-2 text-xs border border-gray-200 rounded-xl bg-gray-50 focus:bg-white outline-none focus:ring-1 focus:ring-rose-600 text-gray-900"
-                  />
-                </div>
-              </div>
-
-              {/* Prominent Price Filter (Doqa Style) */}
-              <div className="space-y-3 pt-3 border-t border-gray-100 bg-rose-50/50 p-3 rounded-xl border border-rose-900/10">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <Icon name="tag" size={13} className="text-rose-700" />
-                    <label className="text-xs font-bold text-gray-900 block">
-                      Price Range
-                    </label>
-                  </div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-rose-600 text-white font-mono text-xs font-bold shadow-xs">
-                    Up to {format(maxPrice)}
-                  </span>
-                </div>
-
-                <div className="space-y-1">
-                  <input
-                    type="range"
-                    min={10}
-                    max={PRICE_MAX}
-                    step={5}
-                    value={maxPrice}
-                    onChange={(e) => {
-                      setMaxPrice(Number(e.target.value));
-                      setPage(1);
-                    }}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-rose-600"
-                    aria-label="Filter by maximum price"
-                  />
-                  <div className="flex items-center justify-between text-[10px] font-bold text-gray-500 font-mono">
-                    <span>{format(10)}</span>
-                    <span>{format(PRICE_MAX)}</span>
-                  </div>
-                </div>
-
-                {/* Quick Price Preset Buttons */}
-                <div className="grid grid-cols-4 gap-1 pt-0.5">
-                  {[
-                    { label: "All", max: PRICE_MAX },
-                    { label: "< $35", max: 35 },
-                    { label: "< $60", max: 60 },
-                    { label: "< $100", max: 100 },
-                  ].map((p) => {
-                    const isSelected = maxPrice === p.max;
-                    return (
-                      <button
-                        key={p.label}
-                        type="button"
-                        onClick={() => {
-                          setMaxPrice(p.max);
-                          setPage(1);
-                        }}
-                        className={`py-1 px-1 text-[10px] font-bold rounded-lg border text-center transition-all ${
-                          isSelected
-                            ? "bg-rose-600 text-white border-rose-600 shadow-2xs"
-                            : "bg-white hover:bg-gray-100 text-gray-700 border-gray-200"
-                        }`}
-                      >
-                        {p.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Discount Tier Filter */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-700 block">Discount Tier</label>
-                <div className="grid grid-cols-1 gap-1.5">
-                  {[
-                    { id: "All", label: "All Special Offers", badge: `${onSaleProducts.length}` },
-                    { id: "30", label: "🔥 30% OFF Mega Deals", badge: `${onSaleProducts.filter((p) => getDiscountPercent(p) >= 30).length}` },
-                    { id: "25", label: "⚡ 25% OFF Big Savings", badge: `${onSaleProducts.filter((p) => getDiscountPercent(p) >= 25 && getDiscountPercent(p) < 30).length}` },
-                    { id: "20", label: "✨ 20% OFF Popular Deals", badge: `${onSaleProducts.filter((p) => getDiscountPercent(p) >= 20 && getDiscountPercent(p) < 25).length}` },
-                    { id: "15", label: "🌿 15% OFF Starter Deals", badge: `${onSaleProducts.filter((p) => getDiscountPercent(p) < 20).length}` },
-                  ].map((tier) => (
-                    <button
-                      key={tier.id}
-                      onClick={() => {
-                        setSelectedTier(tier.id);
-                        setPage(1);
-                      }}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between border ${
-                        selectedTier === tier.id
-                          ? "bg-rose-600 text-white font-bold border-rose-600 shadow-2xs"
-                          : "bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200/80"
-                      }`}
-                    >
-                      <span>{tier.label}</span>
-                      <span
-                        className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                          selectedTier === tier.id ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700"
-                        }`}
-                      >
-                        {tier.badge}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Category Filter */}
-              <div className="space-y-2 pt-2 border-t border-gray-100">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-gray-700 block">Category</label>
-                  {selectedCategory !== "All" && (
-                    <button
-                      onClick={() => {
-                        setSelectedCategory("All");
-                        setPage(1);
-                      }}
-                      className="text-[10px] text-rose-700 font-bold hover:underline"
-                    >
-                      Show all
-                    </button>
-                  )}
-                </div>
-                <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
-                  <button
-                    onClick={() => {
-                      setSelectedCategory("All");
-                      setPage(1);
-                    }}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${
-                      selectedCategory === "All"
-                        ? "bg-emerald-950 text-white font-bold"
-                        : "text-gray-600 hover:bg-gray-100"
-                    }`}
-                  >
-                    <span>All Categories</span>
-                    <span
-                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                        selectedCategory === "All" ? "bg-amber-400 text-emerald-950" : "bg-gray-100 text-gray-500"
-                      }`}
-                    >
-                      {onSaleProducts.length}
-                    </span>
-                  </button>
-                  {CATEGORIES.filter((cat) => (categoryCounts[cat] || 0) > 0).map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => {
-                        setSelectedCategory(cat);
-                        setPage(1);
-                      }}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${
-                        selectedCategory === cat
-                          ? "bg-emerald-950 text-white font-bold"
-                          : "text-gray-600 hover:bg-gray-100"
-                      }`}
-                    >
-                      <span className="truncate pr-1">{cat}</span>
-                      <span
-                        className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                          selectedCategory === cat
-                            ? "bg-amber-400 text-emerald-950"
-                            : "bg-gray-100 text-gray-500"
-                        }`}
-                      >
-                        {categoryCounts[cat] || 0}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Skin Types Filter */}
-              <div className="space-y-2 pt-2 border-t border-gray-100">
-                <label className="text-xs font-bold text-gray-700 block">Skin Type</label>
-                <div className="flex flex-wrap gap-1.5">
-                  <button
-                    onClick={() => {
-                      setSelectedSkinType("All");
-                      setPage(1);
-                    }}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all ${
-                      selectedSkinType === "All"
-                        ? "bg-[#123d32] text-amber-300 border-[#123d32]"
-                        : "bg-gray-50 text-gray-700 hover:bg-gray-100 border-gray-200"
-                    }`}
-                  >
-                    All Types
-                  </button>
-                  {SKIN_TYPES.map((st) => (
-                    <button
-                      key={st}
-                      onClick={() => {
-                        setSelectedSkinType(st);
-                        setPage(1);
-                      }}
-                      className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all ${
-                        selectedSkinType === st
-                          ? "bg-[#123d32] text-amber-300 border-[#123d32]"
-                          : "bg-gray-50 text-gray-700 hover:bg-gray-100 border-gray-200"
-                      }`}
-                    >
-                      {st}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* In-Stock Toggle */}
-              <div className="pt-2 border-t border-gray-100">
-                <label className="flex items-center gap-2 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={inStockOnly}
-                    onChange={(e) => {
-                      setInStockOnly(e.target.checked);
-                      setPage(1);
-                    }}
-                    className="rounded border-gray-300 text-rose-600 focus:ring-rose-500"
-                  />
-                  <span className="text-xs font-semibold text-gray-700">In-Stock Only</span>
-                </label>
-              </div>
-
-              {mobileFilters && (
-                <div className="sticky bottom-0 -m-4 sm:-m-5 mt-4 p-4 sm:p-5 bg-white/95 backdrop-blur-md border-t border-gray-200 z-20 md:hidden shadow-lg">
-                  <button
-                    onClick={closeMobileFilters}
-                    className="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-md active:scale-98 transition-all flex items-center justify-center gap-2"
-                  >
-                    <span>Apply Deal Filters</span>
-                    <span className="px-2 py-0.5 rounded-full bg-white/20 text-white font-black text-[11px]">
-                      {sortedDeals.length} Offers
-                    </span>
-                  </button>
-                </div>
-              )}
-            </div>
-          </aside>
+          {/* Reusable Left Filter Sidebar with Discount Tiers */}
+          <FilterSidebar
+            filters={filters}
+            selectedRitual={selectedRitual}
+            categoryCounts={categoryCounts}
+            totalMatching={sortedDeals.length}
+            activeFiltersCount={activeFiltersCount}
+            isOpen={mobileFilters}
+            onClose={closeMobileFilters}
+            onReset={handleResetAll}
+            onSearchChange={setSearch}
+            onMaxPriceChange={setMaxPrice}
+            onSelectRitual={setSelectedRitual}
+            onToggleCategory={toggleCategory}
+            onClearCategories={clearCategories}
+            onToggleSkinType={toggleSkinType}
+            onInStockChange={setInStockOnly}
+            showDiscountTiers={true}
+            discountTierCounts={discountTierCounts}
+            onTierChange={setTier}
+            accentTone="rose"
+            mobileTitle="SPECIAL OFFERS"
+            mobileSubtitle="Filter Promotions"
+            sidebarTitle="Deal Filters"
+            itemLabel="Offers"
+            isDesktopVisible={desktopSidebarOpen}
+          />
 
           {/* Right Product Grid Area */}
           <div className="layout-content flex-1 min-w-0 w-full space-y-6">
-            {/* Quick Discount Tier Pills */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-              {[
-                { id: "All", label: "All Special Offers", icon: "✨" },
-                { id: "30", label: "30% OFF Mega Deals", icon: "🔥" },
-                { id: "25", label: "25% OFF Big Savings", icon: "⚡" },
-                { id: "20", label: "20% OFF Popular Sets", icon: "✨" },
-              ].map((tier) => (
-                <button
-                  key={tier.id}
-                  onClick={() => {
-                    setSelectedTier(tier.id);
-                    setPage(1);
-                  }}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 border shadow-2xs ${
-                    selectedTier === tier.id
-                      ? "bg-rose-600 text-white border-rose-600 shadow-sm ring-2 ring-rose-600/30"
-                      : "bg-white text-gray-700 hover:bg-gray-50 border-gray-200"
-                  }`}
-                >
-                  <span>{tier.icon}</span>
-                  <span>{tier.label}</span>
-                </button>
-              ))}
-            </div>
+            {/* Search & Filter Bar (Matching user reference) */}
+            <CatalogSearchFilterBar
+              searchValue={filters.search}
+              onSearchChange={setSearch}
+              searchPlaceholder="Search silhouettes, designers, SKU..."
+              onOpenFilters={handleToggleFilters}
+              activeFiltersCount={activeFiltersCount}
+              sortKey={sortKey}
+              onSortChange={(val) => {
+                setSortKey(val as any);
+                setPage(1);
+              }}
+              sortOptions={[
+                { value: "discount-desc", label: "Featured Curation" },
+                { value: "savings-desc", label: "Biggest Savings" },
+                { value: "price-asc", label: "Price: Low to High" },
+                { value: "price-desc", label: "Price: High to Low" },
+              ]}
+              isListView={isListView}
+              onListViewChange={setIsListView}
+            />
 
-            {/* Active Filters Banner */}
+            {/* Reusable Quick Ritual Carousel Pills */}
+            <RitualPillsCarousel
+              selectedRitual={selectedRitual}
+              onSelectRitual={setSelectedRitual}
+            />
+
+            {/* Reusable Quick Discount Tier Pills */}
+            <DiscountTierPills
+              selectedTier={filters.tier || "All"}
+              onSelectTier={setTier}
+            />
+
+            {/* Reusable Active Filters Banner */}
             {isFiltered && (
-              <div className="bg-rose-50 border border-rose-200/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-rose-800 block">
-                    Active Discount Filter
-                  </span>
-                  <strong className="text-sm sm:text-base font-bold text-rose-950 font-display">
-                    {selectedTier !== "All" && `${selectedTier}% OFF Tier `}
-                    {selectedCategory !== "All" && `• ${selectedCategory} `}
-                    {selectedSkinType !== "All" && `• ${selectedSkinType} Skin `}
-                    {searchQuery && `• Matching "${searchQuery}"`}
-                  </strong>
-                  <span className="text-xs text-rose-700 ml-2">
-                    ({sortedDeals.length} offers matching)
-                  </span>
-                </div>
-                <button
-                  onClick={resetFilters}
-                  className="px-3 py-1.5 bg-white border border-rose-300 text-rose-900 rounded-xl text-xs font-bold hover:bg-rose-100 transition-colors self-start sm:self-auto"
-                >
-                  Clear filters
-                </button>
-              </div>
+              <ActiveFiltersBanner
+                filters={filters}
+                selectedRitual={selectedRitual}
+                matchingCount={sortedDeals.length}
+                onClear={handleResetAll}
+                itemLabel="offers matching"
+                accentTone="rose"
+              />
             )}
 
-            {/* Toolbar (Doqa Style) */}
-            <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-gray-200 shadow-2xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-              <div className="flex items-center justify-between sm:justify-start gap-3 w-full sm:w-auto">
+            {/* Results Count Summary */}
+            <div className="flex items-center justify-between text-xs font-semibold text-gray-500 px-1">
+              <span>
+                Showing <strong className="text-gray-900">{pagedDeals.length}</strong> of{" "}
+                <strong className="text-gray-900">{sortedDeals.length}</strong> deals
+              </span>
+              {!desktopSidebarOpen && (
                 <button
-                  onClick={openMobileFilters}
-                  className="md:hidden px-3 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs active:scale-98"
+                  type="button"
+                  onClick={() => setDesktopSidebarOpen(true)}
+                  className="hidden md:inline-flex items-center gap-1 text-xs font-bold text-rose-700 hover:text-rose-900"
                 >
-                  <FilterIcon size={14} />
-                  <span>Filters {isFiltered && "(Active)"}</span>
+                  Show sidebar filters →
                 </button>
-
-                <span className="text-xs font-semibold text-gray-500">
-                  Showing <strong className="text-gray-900">{pagedDeals.length}</strong> of{" "}
-                  <strong className="text-gray-900">{sortedDeals.length}</strong> deals
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto">
-                {/* View Switcher */}
-                <div className="flex items-center border border-gray-200 rounded-xl bg-gray-50 p-0.5 shrink-0">
-                  <button
-                    onClick={() => setIsListView(false)}
-                    className={`p-1.5 rounded-lg transition-colors ${
-                      !isListView ? "bg-white text-gray-900 shadow-2xs" : "text-gray-400 hover:text-gray-700"
-                    }`}
-                    title="Grid view"
-                  >
-                    <GridViewIcon size={15} />
-                  </button>
-                  <button
-                    onClick={() => setIsListView(true)}
-                    className={`p-1.5 rounded-lg transition-colors ${
-                      isListView ? "bg-white text-gray-900 shadow-2xs" : "text-gray-400 hover:text-gray-700"
-                    }`}
-                    title="List view"
-                  >
-                    <ListViewIcon size={15} />
-                  </button>
-                </div>
-
-                {/* Sort Dropdown */}
-                <div className="flex items-center gap-1.5 flex-1 sm:flex-initial justify-end">
-                  <select
-                    value={sortKey}
-                    onChange={(e) => {
-                      setSortKey(e.target.value as any);
-                      setPage(1);
-                    }}
-                    className="w-full sm:w-auto bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-gray-900 outline-none focus:ring-1 focus:ring-rose-600"
-                  >
-                    <option value="discount-desc">Highest Discount %</option>
-                    <option value="savings-desc">Biggest Savings</option>
-                    <option value="price-asc">Price: Low to High</option>
-                    <option value="price-desc">Price: High to Low</option>
-                  </select>
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Product Cards Grid or Empty State */}
@@ -632,7 +276,7 @@ export default function DiscountPage() {
                   Try loosening your tier or search filters to see all available clinical offers.
                 </p>
                 <button
-                  onClick={resetFilters}
+                  onClick={handleResetAll}
                   className="mt-2 px-4 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700"
                 >
                   Clear all filters
@@ -651,7 +295,11 @@ export default function DiscountPage() {
                 ))}
               </ul>
             ) : (
-              <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+              <ul
+                className={`grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 ${
+                  desktopSidebarOpen ? "xl:grid-cols-3" : "lg:grid-cols-3 xl:grid-cols-4"
+                }`}
+              >
                 {pagedDeals.map((product) => (
                   <ProductCard
                     key={product.id}
