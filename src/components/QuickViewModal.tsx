@@ -91,13 +91,15 @@ export default function QuickViewModal({ product, onClose }: Props) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
           {/* Media Showcase */}
           <div className="space-y-3">
-            <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-50 border border-gray-200">
+            <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-50/80 border border-gray-200 flex items-center justify-center p-4">
               <ProductImage
                 product={product}
                 src={gallery[activeImage]}
-                className="w-full h-full object-cover"
+                fit="contain"
+                className="w-full h-full flex items-center justify-center"
+                imgClassName="object-contain object-center"
               />
-              <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+              <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
                 <span className="text-[10px] font-bold uppercase tracking-wider bg-white/95 text-gray-800 px-2.5 py-0.5 rounded-full border border-gray-200 shadow-2xs">
                   {product.category}
                 </span>
@@ -115,11 +117,11 @@ export default function QuickViewModal({ product, onClose }: Props) {
                   <button
                     key={i}
                     onClick={() => setActiveImage(i)}
-                    className={`w-14 h-14 rounded-xl overflow-hidden border-2 shrink-0 ${
+                    className={`w-14 h-14 rounded-xl overflow-hidden border-2 shrink-0 flex items-center justify-center p-1 bg-gray-50 ${
                       activeImage === i ? "border-[#123d32] shadow-xs" : "border-gray-200 opacity-70"
                     }`}
                   >
-                    <ProductImage product={product} src={img} className="w-full h-full object-cover" />
+                    <ProductImage product={product} src={img} fit="contain" className="w-full h-full" imgClassName="object-contain object-center" />
                   </button>
                 ))}
               </div>

@@ -7,6 +7,8 @@ interface Props {
   src?: string
   alt?: string
   className?: string
+  imgClassName?: string
+  fit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down'
   priority?: boolean
 }
 
@@ -48,7 +50,15 @@ function pickVariant(product: Product): 'bottle' | 'jar' | 'tube' {
   return 'tube'
 }
 
-export default function ProductImage({ product, src, alt, className = '', priority = false }: Props) {
+export default function ProductImage({
+  product,
+  src,
+  alt,
+  className = '',
+  imgClassName = '',
+  fit,
+  priority = false,
+}: Props) {
   const [failed, setFailed] = useState(false)
   const [loaded, setLoaded] = useState(false)
 
@@ -66,10 +76,28 @@ export default function ProductImage({ product, src, alt, className = '', priori
   const label = product.accents?.[1] ?? '#ffffff'
   const cap = product.accents?.[2] ?? shade(c1, -30)
 
+  // Determine fit: explicit fit prop, or inferred from className, defaulting to 'contain'
+  const resolvedFit = fit
+    ? fit
+    : className.includes('object-cover')
+    ? 'cover'
+    : 'contain'
+
+  const fitClass = resolvedFit === 'cover' ? 'object-cover' : 'object-contain'
+
   if (imageSrc && !failed) {
     return (
-      <div className={`product-img-wrap ${loaded ? 'is-loaded' : 'is-loading'} ${className}`}>
-        {!loaded && <div className="product-img-skeleton" aria-hidden="true" />}
+      <div
+        className={`product-img-wrap relative w-full h-full flex items-center justify-center overflow-hidden ${
+          loaded ? 'is-loaded' : 'is-loading'
+        } ${className}`}
+      >
+        {!loaded && (
+          <div
+            className="product-img-skeleton absolute inset-0 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 animate-pulse"
+            aria-hidden="true"
+          />
+        )}
         <img
           src={imageSrc}
           alt={alt ?? product.name}
@@ -77,7 +105,7 @@ export default function ProductImage({ product, src, alt, className = '', priori
           decoding="async"
           onLoad={() => setLoaded(true)}
           onError={() => setFailed(true)}
-          className="product-img-elem"
+          className={`product-img-elem max-w-full max-h-full w-full h-full ${fitClass} object-center transition-transform duration-500 ease-out ${imgClassName}`}
         />
       </div>
     )
@@ -85,12 +113,14 @@ export default function ProductImage({ product, src, alt, className = '', priori
 
   // Graceful luxury SVG fallback if image cannot be loaded
   return (
-    <div className={`product-img-wrap is-fallback ${className}`}>
+    <div
+      className={`product-img-wrap is-fallback relative w-full h-full flex items-center justify-center overflow-hidden ${className}`}
+    >
       <svg
         viewBox="0 0 200 200"
         role="img"
         aria-label={product.name}
-        className="product-img-fallback-svg"
+        className={`product-img-fallback-svg max-w-full max-h-full w-full h-full ${fitClass} object-center ${imgClassName}`}
         preserveAspectRatio="xMidYMid meet"
       >
         <defs>

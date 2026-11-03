@@ -106,14 +106,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         >
           <Link
             to={`/product/${product.id}`}
-            className="relative w-full sm:w-48 aspect-square rounded-xl bg-gray-50 overflow-hidden shrink-0 block"
+            className="relative w-full sm:w-48 aspect-square rounded-xl bg-gray-50/80 overflow-hidden shrink-0 flex items-center justify-center p-3 sm:p-4 block"
           >
             <ProductImage
               product={product}
-              className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
+              fit="contain"
+              className="w-full h-full flex items-center justify-center"
+              imgClassName="object-contain object-center group-hover:scale-105 transition-transform duration-500 ease-out"
             />
             {hasDiscount && (
-              <span className="absolute top-2 left-2 bg-rose-600 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-full shadow-md">
+              <span className="absolute top-2 left-2 bg-rose-600 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-full shadow-md z-10">
                 {discountPercent}% OFF
               </span>
             )}
@@ -230,15 +232,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         className="h-full bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-2xs hover:shadow-xl hover:border-emerald-950/20 transition-all duration-300 flex flex-col group cursor-pointer"
       >
         {/* Media Thumbnail with Badges */}
-        <div className="relative aspect-4/3 bg-gray-50 overflow-hidden block">
+        <div className="relative aspect-square sm:aspect-4/3 bg-gray-50/80 overflow-hidden flex items-center justify-center">
           <Link
             to={`/product/${product.id}`}
-            className="w-full h-full block"
+            className="w-full h-full flex items-center justify-center p-3 sm:p-4 overflow-hidden"
             aria-label={product.name}
           >
             <ProductImage
               product={product}
-              className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
+              fit="contain"
+              className="w-full h-full flex items-center justify-center"
+              imgClassName="object-contain object-center group-hover:scale-105 transition-transform duration-500 ease-out"
             />
           </Link>
 

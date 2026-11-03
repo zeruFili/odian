@@ -209,12 +209,14 @@ export default function ProductDetailPage() {
           {/* Left Column: Media Gallery & Quality Assurances */}
           <div className="space-y-6">
             {/* Main Stage Image */}
-            <div className="relative aspect-4/3 sm:aspect-square rounded-3xl overflow-hidden bg-white border border-gray-200 shadow-md group">
+            <div className="relative aspect-4/3 sm:aspect-square rounded-3xl overflow-hidden bg-white border border-gray-200 shadow-md group flex items-center justify-center p-4 sm:p-6">
               <ProductImage
                 product={product}
                 src={gallery[activeImage]}
                 priority={true}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                fit="contain"
+                className="w-full h-full flex items-center justify-center"
+                imgClassName="object-contain object-center group-hover:scale-105 transition-transform duration-500"
               />
 
               {/* Floating Badges */}
@@ -278,7 +280,7 @@ export default function ProductDetailPage() {
                         : "border-gray-200 hover:border-gray-300 opacity-75 hover:opacity-100"
                     }`}
                   >
-                    <ProductImage product={product} src={img} className="w-full h-full object-cover" />
+                    <ProductImage product={product} src={img} fit="contain" className="w-full h-full p-1.5" imgClassName="object-contain object-center" />
                   </button>
                 ))}
               </div>
