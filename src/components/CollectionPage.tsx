@@ -112,16 +112,16 @@ export default function CollectionPage({
         </nav>
 
         {/* Hero Header Banner */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-[#123d32] via-[#1a4a3e] to-[#0e3027] text-white rounded-3xl p-5 sm:p-8 md:p-12 shadow-xl border border-emerald-800/40">
-          <div className="relative z-10 max-w-2xl space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-emerald-200 text-xs font-semibold">
+        <div className="relative overflow-hidden bg-gradient-to-r from-[#123d32] via-[#1a4a3e] to-[#0e3027] text-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-12 shadow-xl border border-emerald-800/40">
+          <div className="relative z-10 max-w-2xl space-y-2 sm:space-y-3">
+            <div className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-white/10 border border-white/20 text-emerald-200 text-[11px] sm:text-xs font-semibold">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               <span>{heroBadge}</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-5xl font-black font-display tracking-tight text-white leading-tight">
+            <h1 className="text-xl sm:text-3xl md:text-5xl font-black font-display tracking-tight text-white leading-tight">
               {title}
             </h1>
-            <p className="text-xs sm:text-sm md:text-base text-emerald-100/90 leading-relaxed">
+            <p className="hidden sm:block text-xs sm:text-sm md:text-base text-emerald-100/90 leading-relaxed">
               {subtitle}
             </p>
           </div>
@@ -241,7 +241,7 @@ export default function CollectionPage({
               </ul>
             ) : (
               <ul
-                className={`grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 ${
+                className={`grid grid-cols-2 gap-2.5 sm:gap-6 ${
                   desktopSidebarOpen ? "xl:grid-cols-3" : "lg:grid-cols-3 xl:grid-cols-4"
                 }`}
               >

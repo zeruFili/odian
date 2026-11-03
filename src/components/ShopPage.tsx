@@ -155,15 +155,15 @@ export default function ShopPage() {
 
       <div className="max-w-[1600px] mx-auto px-3.5 sm:px-6 lg:px-8 space-y-8">
         {/* Hero Showcase Section (Doqa Style) */}
-        <section className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#123d32] via-[#1a4a3e] to-[#0e3027] text-white p-5 sm:p-8 md:p-12 shadow-xl border border-emerald-800/40">
-          <div className="relative z-10 max-w-3xl space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-400/30 text-amber-300 text-xs font-bold uppercase tracking-wider">
+        <section className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-r from-[#123d32] via-[#1a4a3e] to-[#0e3027] text-white p-4 sm:p-8 md:p-12 shadow-xl border border-emerald-800/40">
+          <div className="relative z-10 max-w-3xl space-y-2.5 sm:space-y-4">
+            <div className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-amber-400/15 border border-amber-400/30 text-amber-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider">
               <span>Pure Botanical Science & Formulations</span>
               <span className="hidden sm:inline">•</span>
               <span className="hidden sm:inline">Direct Atelier Dispatch</span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl md:text-5xl font-black font-display tracking-tight text-white leading-tight">
+            <h1 className="text-xl sm:text-3xl md:text-5xl font-black font-display tracking-tight text-white leading-tight">
               Clinical Botanical Skincare & Luxury Beauty Rituals
             </h1>
 
@@ -330,7 +330,7 @@ export default function ShopPage() {
               </ul>
             ) : (
               <ul
-                className={`grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 ${
+                className={`grid grid-cols-2 gap-2.5 sm:gap-6 ${
                   desktopSidebarOpen ? "xl:grid-cols-3" : "lg:grid-cols-3 xl:grid-cols-4"
                 }`}
               >

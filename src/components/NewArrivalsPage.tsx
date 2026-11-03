@@ -102,22 +102,22 @@ export default function NewArrivalsPage() {
         </nav>
 
         {/* Hero Banner (Doqa Style New Arrivals Banner) */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-[#123d32] via-[#1a4a3e] to-[#0e3027] text-white rounded-3xl p-5 sm:p-8 md:p-12 shadow-xl border border-emerald-800/40">
-          <div className="relative z-10 max-w-3xl space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 text-xs font-black uppercase tracking-wider">
+        <div className="relative overflow-hidden bg-gradient-to-r from-[#123d32] via-[#1a4a3e] to-[#0e3027] text-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-12 shadow-xl border border-emerald-800/40">
+          <div className="relative z-10 max-w-3xl space-y-2.5 sm:space-y-4">
+            <div className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 text-[11px] sm:text-xs font-black uppercase tracking-wider">
               <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-              <span>ODILIA BOTANICALS • NEW ARRIVALS & FORMULATIONS</span>
+              <span>ODILIA BOTANICALS • NEW ARRIVALS</span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl md:text-5xl font-black font-display tracking-tight text-white leading-tight">
+            <h1 className="text-xl sm:text-3xl md:text-5xl font-black font-display tracking-tight text-white leading-tight">
               Fresh Atelier Extractions & Breakthroughs
             </h1>
 
-            <p className="text-xs sm:text-sm md:text-base text-emerald-100/90 leading-relaxed max-w-2xl">
+            <p className="hidden md:block text-xs sm:text-sm md:text-base text-emerald-100/90 leading-relaxed max-w-2xl">
               Newly perfected clinical formulations engineered to elevate your daily beauty ritual. Sourced from the latest cold-pressed harvests with enhanced bio-ferment potency.
             </p>
 
-            <div className="flex flex-wrap items-center gap-3 pt-2 text-xs">
+            <div className="hidden sm:flex flex-wrap items-center gap-3 pt-2 text-xs">
               <div className="flex items-center gap-2 bg-black/30 backdrop-blur-xs px-3.5 py-1.5 rounded-xl border border-white/10">
                 <span className="text-amber-400 font-bold">✓</span>
                 <span>Fresh Lab Batches</span>
@@ -255,7 +255,7 @@ export default function NewArrivalsPage() {
               </ul>
             ) : (
               <ul
-                className={`grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 ${
+                className={`grid grid-cols-2 gap-2.5 sm:gap-6 ${
                   desktopSidebarOpen ? "xl:grid-cols-3" : "lg:grid-cols-3 xl:grid-cols-4"
                 }`}
               >

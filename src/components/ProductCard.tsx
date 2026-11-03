@@ -229,13 +229,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         tabIndex={0}
         role="article"
         aria-label={product.name}
-        className="h-full bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-2xs hover:shadow-xl hover:border-emerald-950/20 transition-all duration-300 flex flex-col group cursor-pointer"
+        className="h-full bg-white rounded-xl sm:rounded-2xl border border-gray-200 overflow-hidden shadow-2xs hover:shadow-xl hover:border-emerald-950/20 transition-all duration-300 flex flex-col group cursor-pointer"
       >
         {/* Media Thumbnail with Badges */}
-        <div className="relative aspect-square sm:aspect-4/3 bg-gray-50/80 overflow-hidden flex items-center justify-center">
+        <div className="relative aspect-square sm:aspect-4/3 bg-gray-50/80 overflow-hidden flex items-center justify-center shrink-0">
           <Link
             to={`/product/${product.id}`}
-            className="w-full h-full flex items-center justify-center p-3 sm:p-4 overflow-hidden"
+            className="w-full h-full flex items-center justify-center p-2 sm:p-4 overflow-hidden"
             aria-label={product.name}
           >
             <ProductImage
@@ -247,52 +247,54 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </Link>
 
           {/* Top-Left Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10 pointer-events-none">
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-white/95 backdrop-blur-xs text-gray-800 px-2.5 py-0.5 rounded-full border border-gray-200 shadow-2xs self-start">
+          <div className="absolute top-2 sm:top-3 left-2 sm:left-3 flex flex-col gap-1 sm:gap-1.5 z-10 pointer-events-none">
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-white/95 backdrop-blur-xs text-gray-800 px-2 sm:px-2.5 py-0.5 rounded-full border border-gray-200 shadow-2xs self-start truncate max-w-[80px] sm:max-w-none">
               {product.category}
             </span>
 
             {hasDiscount && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider bg-rose-600 text-white px-2.5 py-1 rounded-full shadow-md self-start border border-rose-500/80 animate-pulse">
-                <Icon name="tag" size={11} className="text-amber-300" />
+              <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[9px] sm:text-[11px] font-black uppercase tracking-wider bg-rose-600 text-white px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full shadow-md self-start border border-rose-500/80 animate-pulse">
+                <Icon name="tag" size={9} className="text-amber-300 sm:w-2.5 sm:h-2.5" />
                 <span>{discountPercent}% OFF</span>
               </span>
             )}
 
             {product.badge === "new" && !hasDiscount && (
-              <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-950 text-amber-300 px-2.5 py-0.5 rounded-full shadow-xs self-start border border-emerald-800">
-                New Arrival
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-emerald-950 text-amber-300 px-2 sm:px-2.5 py-0.5 rounded-full shadow-xs self-start border border-emerald-800">
+                New
               </span>
             )}
             {product.badge === "bestseller" && !hasDiscount && (
-              <span className="text-[10px] font-black uppercase tracking-wider bg-amber-500 text-white px-2.5 py-0.5 rounded-full shadow-xs self-start">
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-amber-500 text-white px-2 sm:px-2.5 py-0.5 rounded-full shadow-xs self-start">
                 Bestseller
               </span>
             )}
           </div>
 
           {/* Top-Right Badges: Stock Status & Wishlist Button */}
-          <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
-            <Badge tone={isOutOfStock ? "red" : isLowStock ? "amber" : "green"} size="sm">
-              {isOutOfStock ? "Sold Out" : isLowStock ? "Low Stock" : "In Stock"}
-            </Badge>
+          <div className="absolute top-2 sm:top-3 right-2 sm:right-3 flex items-center gap-1 sm:gap-1.5 z-10">
+            <span className="hidden xs:inline-block">
+              <Badge tone={isOutOfStock ? "red" : isLowStock ? "amber" : "green"} size="sm">
+                {isOutOfStock ? "Sold Out" : isLowStock ? "Low Stock" : "In Stock"}
+              </Badge>
+            </span>
 
             <button
               type="button"
               data-no-navigate="true"
               onClick={handleWishlist}
-              className={`w-8 h-8 rounded-full bg-white/95 backdrop-blur-xs border border-gray-200 flex items-center justify-center shadow-xs transition-colors hover:scale-105 active:scale-95 cursor-pointer ${
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/95 backdrop-blur-xs border border-gray-200 flex items-center justify-center shadow-xs transition-colors hover:scale-105 active:scale-95 cursor-pointer ${
                 isWish ? "text-rose-600 bg-rose-50 border-rose-200" : "text-gray-500 hover:text-rose-600"
               }`}
               title={isWish ? "Remove from wishlist" : "Add to wishlist"}
               aria-label="Wishlist"
             >
-              <HeartIcon size={14} filled={isWish} />
+              <HeartIcon size={12} filled={isWish} className="sm:w-3.5 sm:h-3.5" />
             </button>
           </div>
 
-          {/* Bottom Hover Overlay Chip & Quick View */}
-          <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+          {/* Bottom Hover Overlay Chip & Quick View (Desktop only) */}
+          <div className="hidden sm:flex absolute bottom-2.5 left-2.5 right-2.5 items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
             <span className="text-[9px] font-semibold bg-[#123d32]/90 text-white px-2 py-0.5 rounded-md backdrop-blur-xs flex items-center gap-1 shadow-xs truncate max-w-[70%]">
               <Icon name="leaf" size={10} className="text-amber-300" />
               <span>{product.skinTypes?.slice(0, 2).join(", ") || "All Skin Types"}</span>
@@ -314,12 +316,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
 
         {/* Content Body */}
-        <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-          <div className="space-y-1.5">
+        <div className="p-2.5 sm:p-4 flex-1 flex flex-col justify-between space-y-2 sm:space-y-3 min-w-0">
+          <div className="space-y-1 sm:space-y-1.5 min-w-0">
             {/* Brand / SKU line */}
-            <div className="flex items-center justify-between text-[11px] text-gray-400 font-semibold">
-              <span className="truncate uppercase tracking-wider">{product.brand || "Odilia Botanicals"}</span>
-              <span className="font-mono text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+            <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-gray-400 font-semibold gap-1">
+              <span className="truncate uppercase tracking-wider">{product.brand || "Odilia"}</span>
+              <span className="font-mono text-[9px] sm:text-[10px] text-gray-500 bg-gray-100 px-1 sm:px-1.5 py-0.5 rounded shrink-0">
                 {productCode}
               </span>
             </div>
@@ -327,76 +329,75 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {/* Product Title */}
             <Link
               to={`/product/${product.id}`}
-              className="text-sm font-bold text-gray-900 group-hover:text-emerald-900 transition-colors line-clamp-2 font-display block leading-snug"
+              className="text-xs sm:text-sm font-bold text-gray-900 group-hover:text-emerald-900 transition-colors line-clamp-2 font-display block leading-snug"
             >
               {product.name}
             </Link>
 
             {/* Star Rating */}
-            <div className="flex items-center gap-1.5 pt-0.5">
+            <div className="flex items-center gap-1 sm:gap-1.5 pt-0.5">
               <div className="flex text-amber-400">
                 {Array.from({ length: 5 }, (_, i) => (
                   <StarIcon
                     key={i}
-                    size={11}
+                    size={10}
                     className={i < Math.floor(product.rating) ? "text-amber-400" : "text-gray-200"}
                   />
                 ))}
               </div>
-              <span className="text-[10px] text-gray-500 font-medium">
-                {product.rating.toFixed(1)} ({product.reviews})
+              <span className="text-[9px] sm:text-[10px] text-gray-500 font-medium">
+                {product.rating.toFixed(1)} <span className="hidden xs:inline">({product.reviews})</span>
               </span>
             </div>
           </div>
 
           {/* Pricing & Cart Action Section */}
-          <div className="pt-3 border-t border-gray-100 space-y-3">
+          <div className="pt-2 sm:pt-3 border-t border-gray-100 space-y-2 sm:space-y-3 min-w-0">
             {hasDiscount ? (
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-gray-400">
+              <div className="space-y-1 sm:space-y-1.5">
+                <div className="flex items-center justify-between text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-gray-400">
                   <span>Special Deal</span>
-                  <span className="bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-md font-black">
+                  <span className="bg-rose-50 text-rose-700 border border-rose-200 px-1.5 py-0.5 rounded font-black text-[9px]">
                     {discountPercent}% OFF
                   </span>
                 </div>
 
-                <div className="flex items-baseline gap-2.5 flex-wrap">
-                  <span className="text-xs sm:text-sm font-semibold text-gray-400 line-through">
+                <div className="flex items-baseline gap-1.5 sm:gap-2.5 flex-wrap">
+                  <span className="text-[10px] sm:text-sm font-semibold text-gray-400 line-through">
                     {format(product.compareAtPrice ?? product.price)}
                   </span>
-                  <strong className="text-xl sm:text-2xl font-black text-rose-600 font-display">
+                  <strong className="text-base sm:text-2xl font-black text-rose-600 font-display">
                     {format(product.price)}
                   </strong>
                 </div>
 
                 {/* Savings Line */}
-                <div className="flex items-center justify-between pt-1 border-t border-dashed border-gray-100 text-[11px]">
-                  <span className="text-emerald-700 font-bold flex items-center gap-1">
-                    <CheckIcon size={12} className="text-emerald-600" />
+                <div className="hidden xs:flex items-center justify-between pt-1 border-t border-dashed border-gray-100 text-[10px] sm:text-[11px]">
+                  <span className="text-emerald-700 font-bold flex items-center gap-1 truncate">
+                    <CheckIcon size={11} className="text-emerald-600 shrink-0" />
                     Save {format(savingsAmount)}
                   </span>
-                  <span className="text-gray-400 text-[10px]">Pure Active Formula</span>
+                  <span className="text-gray-400 text-[9px] hidden sm:inline">Pure Active</span>
                 </div>
               </div>
             ) : (
-              <div className="flex items-baseline justify-between">
+              <div className="flex items-baseline justify-between gap-1">
                 <div>
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400 block">
+                  <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-gray-400 block">
                     Retail Price
                   </span>
-                  <strong className="text-xl font-black text-[#123d32] font-display">
+                  <strong className="text-base sm:text-xl font-black text-[#123d32] font-display">
                     {format(product.price)}
                   </strong>
                 </div>
 
-                <div className="text-right">
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400 block">
-                    Efficacy
+                <div className="text-right hidden xs:block">
+                  <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-gray-400 block">
+                    Grade
                   </span>
-                  <strong className="text-xs font-bold text-emerald-800 font-display block mt-0.5">
-                    Clinical Grade
+                  <strong className="text-[10px] sm:text-xs font-bold text-emerald-800 font-display block">
+                    Clinical
                   </strong>
-                  <span className="text-[9px] text-gray-400">Pure Botanicals</span>
                 </div>
               </div>
             )}
@@ -408,7 +409,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 data-no-navigate="true"
                 disabled={isOutOfStock}
                 onClick={handleAddToCart}
-                className={`w-full py-2.5 px-3 text-white rounded-xl text-xs font-bold active:scale-98 transition-all shadow-2xs disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 ${
+                className={`w-full py-2 sm:py-2.5 px-2 sm:px-3 text-white rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold active:scale-98 transition-all shadow-2xs disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-1.5 min-w-0 ${
                   hasDiscount
                     ? "bg-rose-600 hover:bg-rose-700 shadow-rose-900/10"
                     : "bg-[#123d32] hover:bg-[#1a4a3e]"
@@ -417,17 +418,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               >
                 {added ? (
                   <>
-                    <CheckIcon size={14} className="text-white" />
-                    <span>Added to Bag!</span>
+                    <CheckIcon size={13} className="text-white shrink-0" />
+                    <span className="truncate">Added!</span>
                   </>
                 ) : (
                   <>
-                    <BagIcon size={14} className={hasDiscount ? "text-white" : "text-amber-400"} />
-                    <span>
+                    <BagIcon size={13} className={hasDiscount ? "text-white shrink-0" : "text-amber-400 shrink-0"} />
+                    <span className="truncate">
                       {isOutOfStock
                         ? "Sold Out"
                         : hasDiscount
-                        ? "Claim Special Offer"
+                        ? "Special Offer"
                         : "Add to Bag"}
                     </span>
                   </>
