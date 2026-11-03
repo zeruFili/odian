@@ -15,11 +15,11 @@ body {
   font-family: var(--font-sans);
   font-size: var(--fs-base);
   font-weight: 400;
-  line-height: var(--lh-163);
-  letter-spacing: var(--ls-16);
+  line-height: var(--lh-normal);
   color: var(--color-text);
   background-color: var(--color-bg);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   width: 100%;
   overflow-x: clip;
@@ -27,7 +27,13 @@ body {
 
 #root {
   width: 100%;
-  overflow-x: clip;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
 }
 
 h1,
@@ -38,8 +44,9 @@ h5,
 h6 {
   font-family: var(--font-serif);
   font-weight: 500;
-  line-height: var(--lh-120);
+  line-height: var(--lh-tight);
   color: var(--color-heading);
+  letter-spacing: -0.01em;
   margin: 0;
 }
 
@@ -50,11 +57,16 @@ p {
 a {
   color: inherit;
   text-decoration: none;
+  transition: color 0.2s var(--ease), opacity 0.2s var(--ease);
 }
 
 button {
   font-family: inherit;
   cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  color: inherit;
 }
 
 img,
@@ -63,7 +75,7 @@ svg {
   max-width: 100%;
 }
 
-ul {
+ul, ol {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -71,14 +83,20 @@ ul {
 
 input,
 select,
+textarea,
 button {
   font: inherit;
   letter-spacing: inherit;
 }
 
 ::selection {
-  background: var(--color-pink-60);
+  background: var(--color-gold-300);
   color: var(--color-stone-950);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold-500);
+  outline-offset: 2px;
 }
 
 .container {
@@ -100,37 +118,62 @@ button {
   border: 0;
 }
 
-/* Shared button styles */
+/* ============================================================
+   Shared Button System
+   ============================================================ */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--sp-2);
-  border: none;
-  background: var(--color-stone-800);
-  color: var(--color-white);
-  font-size: var(--fs-base);
-  font-weight: 500;
-  line-height: var(--lh-163);
-  letter-spacing: var(--ls-16);
-  padding: var(--sp-2) var(--sp-6);
+  padding: 0.75rem 1.75rem;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
   border-radius: var(--radius-full);
-  transition: background-color 0.2s var(--ease), transform 0.2s var(--ease);
+  border: 1px solid transparent;
+  transition: all 0.25s var(--ease);
   white-space: nowrap;
-}
-
-.btn:hover {
-  background: var(--color-stone-700);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 .btn:active {
   transform: scale(0.98);
 }
 
+.btn--primary {
+  background: var(--color-stone-950);
+  color: var(--color-white);
+  border-color: var(--color-stone-950);
+  box-shadow: 0 4px 14px rgba(20, 18, 16, 0.12);
+}
+
+.btn--primary:hover {
+  background: var(--color-stone-800);
+  border-color: var(--color-stone-800);
+  box-shadow: 0 6px 20px rgba(20, 18, 16, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn--secondary {
+  background: var(--color-gold-500);
+  color: var(--color-white);
+  border-color: var(--color-gold-500);
+}
+
+.btn--secondary:hover {
+  background: var(--color-gold-600);
+  border-color: var(--color-gold-600);
+  transform: translateY(-1px);
+}
+
 .btn--outline {
   background: transparent;
   color: var(--color-stone-950);
-  border: 1px solid var(--color-stone-950);
+  border: 1.5px solid var(--color-stone-950);
 }
 
 .btn--outline:hover {
@@ -139,15 +182,120 @@ button {
 }
 
 .btn--ghost {
-  background: transparent;
-  color: var(--color-stone-950);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-stone-900);
   border: 1px solid var(--color-border);
+  backdrop-filter: blur(8px);
 }
 
 .btn--ghost:hover {
-  border-color: var(--color-stone-950);
+  background: var(--color-white);
+  border-color: var(--color-stone-900);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn--sm {
+  padding: 0.5rem 1.1rem;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.04em;
 }
 
 .btn--block {
   width: 100%;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ============================================================
+   Stars Rating
+   ============================================================ */
+.stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--color-stone-300);
+}
+
+.star {
+  transition: color 0.15s ease;
+}
+
+.star--on {
+  color: #e5a024;
+}
+
+/* ============================================================
+   Badges
+   ============================================================ */
+.card__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card__badge--sale {
+  background: var(--color-terracotta);
+  color: var(--color-white);
+}
+
+.card__badge--best {
+  background: var(--color-stone-950);
+  color: var(--color-gold-300);
+  border: 1px solid rgba(226, 203, 178, 0.3);
+}
+
+.card__badge--new {
+  background: var(--color-sage-500);
+  color: var(--color-white);
+}
+
+.card__badge--oops {
+  background: var(--color-stone-700);
+  color: var(--color-white);
+}
+
+.skin-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-stone-700);
+  background: var(--color-stone-100);
+  border: 1px solid var(--color-stone-200);
+  border-radius: var(--radius-full);
+}
+
+/* Stock Badges */
+.stock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+}
+
+.stock-badge--in {
+  color: #1b6338;
+  background: #eef7f1;
+  border: 1px solid #c2e5cf;
+}
+
+.stock-badge--out {
+  color: #923424;
+  background: #fdf2ef;
+  border: 1px solid #f4cdc5;
 }
