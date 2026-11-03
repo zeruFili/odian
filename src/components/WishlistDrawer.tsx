@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useWishlist } from "../store/wishlist";
 import { useCart } from "../store/cart";
 import { useCurrency } from "../store/currency";
 import { useToast } from "../store/toast";
 import ProductImage from "./ProductImage";
-import Icon, { CloseIcon, HeartIcon, BagIcon } from "./Icons";
+import { CloseIcon, HeartIcon, BagIcon } from "./Icons";
 
 export default function WishlistDrawer() {
   const { wishlistProducts, isOpen, closeWishlist, removeFromWishlist, count } = useWishlist();

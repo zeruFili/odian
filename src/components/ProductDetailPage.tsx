@@ -19,7 +19,6 @@ import Icon, {
   LeafIcon,
   CheckIcon,
   BagIcon,
-  CloseIcon,
 } from "./Icons";
 
 interface ReviewItem {
