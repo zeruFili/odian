@@ -149,10 +149,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                   {product.rating.toFixed(1)} ({product.reviews} reviews)
                 </span>
               </div>
-
-              <p className="text-xs text-gray-500 line-clamp-2 mt-2 leading-relaxed">
-                {product.description}
-              </p>
             </div>
 
             <div className="pt-3 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -347,11 +343,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 {product.rating.toFixed(1)} ({product.reviews})
               </span>
             </div>
-
-            {/* Description */}
-            <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
-              {product.description}
-            </p>
           </div>
 
           {/* Pricing & Cart Action Section */}

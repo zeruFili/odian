@@ -388,6 +388,11 @@ export default function ProductDetailPage() {
                     Dermatologist Approved
                   </span>
                 </div>
+
+                {/* Formulation Description */}
+                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed pt-2 border-t border-gray-100">
+                  {product.description}
+                </p>
               </div>
 
               {/* Pricing Showcase Block (Doqa Style) */}
@@ -569,6 +574,9 @@ export default function ProductDetailPage() {
                     <h3 className="text-base font-bold text-gray-900 font-display">
                       The Formulation Science Behind {product.name}
                     </h3>
+                    <p className="p-3.5 rounded-xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-950 font-medium text-xs sm:text-sm leading-relaxed">
+                      {product.description}
+                    </p>
                     <p>
                       Engineered in collaboration with cosmetic biochemists, this clinical formulation
                       combines pure cold-pressed botanicals with bio-fermented actives. Unlike traditional

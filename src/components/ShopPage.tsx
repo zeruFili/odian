@@ -167,13 +167,13 @@ export default function ShopPage() {
               Clinical Botanical Skincare & Luxury Beauty Rituals
             </h1>
 
-            <p className="text-xs sm:text-sm md:text-base text-emerald-100/80 leading-relaxed max-w-2xl">
+            <p className="hidden md:block text-xs sm:text-sm md:text-base text-emerald-100/80 leading-relaxed max-w-2xl">
               Award-winning bio-fermented actives formulated with pure cold-pressed botanicals. Clinically proven
               to awaken natural radiance, fortify lipid barriers, and maintain luminous skin health.
             </p>
 
-            {/* Quick Hero Buttons */}
-            <div className="flex flex-wrap items-center gap-2.5 pt-2">
+            {/* Quick Hero Buttons (Hidden on mobile responsive view) */}
+            <div className="hidden md:flex flex-wrap items-center gap-2.5 pt-2">
               {[
                 { label: "Active Serums", cat: "Serums", icon: "💧" },
                 { label: "Face Creams & Balms", cat: "Face Care", icon: "🧴" },
