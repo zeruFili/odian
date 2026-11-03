@@ -1,6 +1,5 @@
-import React from "react";
 import { useToast } from "../store/toast";
-import Icon, { CloseIcon, CheckIcon } from "./Icons";
+import { CloseIcon, CheckIcon } from "./Icons";
 
 export default function ToastContainer() {
   const { toasts, removeToast } = useToast();

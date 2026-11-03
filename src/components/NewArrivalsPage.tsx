@@ -1,11 +1,10 @@
-import React, { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { newArrivalProducts, priceInUsd, type Product } from "../data/products";
 import { useCart } from "../store/cart";
 import ProductCard from "./ProductCard";
 import QuickViewModal from "./QuickViewModal";
 import Footer from "./Footer";
-import Icon from "./Icons";
 import {
   FilterSidebar,
   RitualPillsCarousel,

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { CartProvider } from "./store/cart";
 import { WishlistProvider } from "./store/wishlist";

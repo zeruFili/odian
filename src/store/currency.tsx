@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useState, type ReactNode } from 'react'
 import type { Currency, Product } from '../data/products'
 import { formatPrice as formatPriceUtil, ETB_PER_USD } from '../data/products'
 

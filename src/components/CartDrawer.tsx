@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useCart } from "../store/cart";
 import { useCurrency } from "../store/currency";
 import ProductImage from "./ProductImage";
-import Icon, { CloseIcon, TruckIcon, ShieldCheckIcon, CheckIcon, BagIcon } from "./Icons";
+import { CloseIcon, TruckIcon, ShieldCheckIcon, CheckIcon, BagIcon } from "./Icons";
 
 const FREE_SHIPPING_THRESHOLD_USD = 60;
 

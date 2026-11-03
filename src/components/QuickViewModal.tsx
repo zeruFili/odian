@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import type { Product } from "../data/products";
 import { useCurrency } from "../store/currency";
@@ -6,8 +6,7 @@ import { useCart } from "../store/cart";
 import { useWishlist } from "../store/wishlist";
 import { useToast } from "../store/toast";
 import ProductImage from "./ProductImage";
-import Badge from "./Badge";
-import Icon, { CloseIcon, HeartIcon, StarIcon, CheckIcon, BagIcon } from "./Icons";
+import { CloseIcon, HeartIcon, StarIcon, CheckIcon, BagIcon } from "./Icons";
 
 interface Props {
   product: Product | null;

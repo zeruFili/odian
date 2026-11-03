@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../store/cart";
 import { useWishlist } from "../store/wishlist";
 import { useCurrency } from "../store/currency";
-import { products, type Product } from "../data/products";
-import Icon, { BagIcon, HeartIcon, SearchIcon, CloseIcon, ChevronDownIcon } from "./Icons";
+import { products } from "../data/products";
+import Icon, { BagIcon, HeartIcon, SearchIcon, CloseIcon } from "./Icons";
 import ProductImage from "./ProductImage";
 
 export function Logo({ light = false }: { light?: boolean }) {
@@ -122,7 +122,7 @@ export default function Header() {
     { name: "Cleansers & Toners", path: "/?category=Cleansers", count: "8 Items" },
   ];
 
-  const renderHeaderContent = (isFloating: boolean) => (
+  const renderHeaderContent = () => (
     <>
       <div className="max-w-[1600px] mx-auto px-3.5 sm:px-6 lg:px-8 h-14 sm:h-20 flex items-center justify-between gap-3 sm:gap-6">
         {/* Brand Logo */}
@@ -312,7 +312,7 @@ export default function Header() {
 
       {/* Initial In-Flow Header: natural document flow, NOT fixed at the top */}
       <header className="relative w-full bg-white/95 border-b border-gray-200">
-        {renderHeaderContent(false)}
+        {renderHeaderContent()}
         {!scrolledPast && renderSearchDrawer(false)}
       </header>
 
@@ -325,7 +325,7 @@ export default function Header() {
         }`}
         aria-hidden={!scrolledPast}
       >
-        {renderHeaderContent(true)}
+        {renderHeaderContent()}
         {scrolledPast && renderSearchDrawer(true)}
       </header>
 
